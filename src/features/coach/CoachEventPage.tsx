@@ -5,6 +5,9 @@ import { describeChange, kindLabel, type CalendarEvent } from '../../lib/events'
 import { validateMenu, type MenuBlocks } from '../../lib/menu'
 import { useAthletes } from '../athletes/useAthletes'
 import { saveErrorMessage, useEvent, useEventsInRange } from '../calendar/useEvents'
+import { cloneWithNewIds } from '../../lib/library'
+import { TemplatePicker } from '../library/TemplatePicker'
+import { useSaveTemplate } from '../library/useLibrary'
 import { MenuEditor } from '../menu/MenuEditor'
 import { useAcknowledgeChange, useDeleteMenu, useMenu, useSaveMenus } from '../menu/useMenu'
 import { OutcomeView } from '../record/OutcomeView'
@@ -57,6 +60,8 @@ function Editor({
   const [dirty, setDirty] = useState(false)
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
   const [pasting, setPasting] = useState<MenuBlocks | null>(null)
+  const [picking, setPicking] = useState(false)
+  const saveTemplate = useSaveTemplate()
   const save = useSaveMenus()
   const remove = useDeleteMenu()
   const ack = useAcknowledgeChange()
@@ -93,6 +98,28 @@ function Editor({
       setBlocks([])
       setDirty(false)
       setMessage({ ok: true, text: 'メニューを削除しました。' })
+    } catch (e) {
+      setMessage({ ok: false, text: saveErrorMessage(e) })
+    }
+  }
+
+  const onPickTemplate = (t: MenuBlocks, mode: 'replace' | 'append') => {
+    if (mode === 'replace' && blocks.length > 0 && !window.confirm('今のメニューをテンプレートで置き換えますか？')) return
+    const copied = cloneWithNewIds(t)
+    onChange(mode === 'append' ? [...blocks, ...copied] : copied)
+    setPicking(false)
+    setMessage({ ok: true, text: 'テンプレートを入れました。内容を調整して「メニューを保存」を押してください。' })
+  }
+
+  const onSaveAsTemplate = async () => {
+    const v = validateMenu(blocks)
+    if (!v.ok) return setMessage({ ok: false, text: v.error })
+    const title = window.prompt('テンプレート名を入力してください', '')
+    if (title === null) return
+    if (!title.trim()) return setMessage({ ok: false, text: 'テンプレート名を入力してください' })
+    try {
+      await saveTemplate.mutateAsync({ title: title.trim().slice(0, 100), blocks: v.blocks, reference_note_id: null })
+      setMessage({ ok: true, text: `テンプレート「${title.trim()}」として保存しました。` })
     } catch (e) {
       setMessage({ ok: false, text: saveErrorMessage(e) })
     }
@@ -151,6 +178,15 @@ function Editor({
           <OutcomeView blocks={initial} record={record} />
         </section>
       )}
+      {editable && (
+        <button
+          type="button"
+          onClick={() => setPicking(true)}
+          className="w-full rounded-lg bg-white px-4 py-2 text-sm text-sky-700 ring-1 ring-sky-300"
+        >
+          テンプレートから入れる
+        </button>
+      )}
       {editable && <MenuEditor blocks={blocks} onChange={onChange} />}
 
       {message && (
@@ -168,6 +204,14 @@ function Editor({
             className="w-full rounded-lg bg-white px-4 py-3 text-sky-700 ring-1 ring-sky-300 disabled:opacity-40"
           >
             このメニューを他の選手・日付にも入れる
+          </button>
+          <button
+            type="button"
+            onClick={onSaveAsTemplate}
+            disabled={blocks.length === 0 || saveTemplate.isPending}
+            className="w-full rounded-lg bg-white px-4 py-3 text-slate-700 ring-1 ring-slate-300 disabled:opacity-40"
+          >
+            このメニューをテンプレートに保存
           </button>
           {hasMenu && (
             <button
@@ -194,6 +238,8 @@ function Editor({
           </button>
         </div>
       )}
+
+      {picking && <TemplatePicker hasBlocks={blocks.length > 0} onPick={onPickTemplate} onClose={() => setPicking(false)} />}
 
       {pasting && (
         <PasteDialog

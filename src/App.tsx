@@ -11,6 +11,10 @@ import { WeekPage } from './features/calendar/WeekPage'
 import { CoachCalendarPage } from './features/coach/CoachCalendarPage'
 import { CoachEventPage } from './features/coach/CoachEventPage'
 import { PushTestPage } from './features/dev/PushTestPage'
+import { ReferenceDetailPage } from './features/library/ReferenceDetailPage'
+import { ReferencesPage } from './features/library/ReferencesPage'
+import { TemplateEditPage } from './features/library/TemplateEditPage'
+import { TemplatesPage } from './features/library/TemplatesPage'
 import { RecordPage } from './features/record/RecordPage'
 
 function FullScreenMessage({ children }: { children: ReactNode }) {
@@ -61,6 +65,12 @@ function AuthedRoutes() {
           <Route path="/coach" element={<AppShell><CoachCalendarPage /></AppShell>} />
           <Route path="/coach/events/:id" element={<AppShell><CoachEventPage /></AppShell>} />
           <Route path="/coach/athletes" element={<AppShell><AthletesPage /></AppShell>} />
+          <Route path="/coach/templates" element={<AppShell><TemplatesPage /></AppShell>} />
+          <Route path="/coach/templates/new" element={<AppShell><TemplateEditPage /></AppShell>} />
+          <Route path="/coach/templates/:id" element={<AppShell><TemplateEditPage /></AppShell>} />
+          <Route path="/coach/references" element={<AppShell><ReferencesPage /></AppShell>} />
+          <Route path="/coach/references/new" element={<AppShell><ReferenceDetailPage /></AppShell>} />
+          <Route path="/coach/references/:id" element={<AppShell><ReferenceDetailPage /></AppShell>} />
         </>
       ) : (
         <>

@@ -6,6 +6,8 @@ type NavItem = { to: string; label: string }
 
 const coachNav: NavItem[] = [
   { to: '/coach', label: 'カレンダー' },
+  { to: '/coach/templates', label: 'テンプレート' },
+  { to: '/coach/references', label: '参考メニュー' },
   { to: '/coach/athletes', label: '選手管理' },
 ]
 
@@ -27,14 +29,14 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
       <main className="flex-1 p-4">{children}</main>
       {nav.length > 0 && (
-        <nav className="sticky bottom-0 grid grid-cols-2 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)]">
+        <nav className="sticky bottom-0 grid grid-cols-4 border-t border-slate-200 bg-white pb-[env(safe-area-inset-bottom)]">
           {nav.map((n) => (
             <NavLink
               key={n.to}
               to={n.to}
-              end
+              end={n.to === '/coach'}
               className={({ isActive }) =>
-                `py-3 text-center text-sm ${isActive ? 'font-bold text-sky-700' : 'text-slate-500'}`
+                `py-3 text-center text-xs ${isActive ? 'font-bold text-sky-700' : 'text-slate-500'}`
               }
             >
               {n.label}

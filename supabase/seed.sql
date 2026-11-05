@@ -60,3 +60,17 @@ select e.id, '[
 ]'::jsonb
 from public.events e
 where e.athlete_id = '00000000-0000-0000-0000-0000000000a1' and e.kind = 'dryland' and e.date = (now() at time zone 'Asia/Tokyo')::date + 2;
+
+-- 参考メニュー帳とテンプレート（コーチ専用）
+insert into public.reference_notes (id, title, url, memo, tags) values
+  ('00000000-0000-0000-0000-0000000000f1', '肩甲骨まわりの安定化サーキット', 'https://example.com/shoulder-stability',
+   'バンドで軽めに。回数は選手に合わせて少なめから。', '{肩,体幹}'),
+  ('00000000-0000-0000-0000-0000000000f2', '試合前の軽い刺激入れ', '', '強度は低く、時間は20分以内。', '{試合前}');
+insert into public.templates (title, blocks, reference_note_id) values
+  ('体幹サーキット（基本）', '[
+    {"id":"tpl-b1","type":"circuit","rounds":3,"rest_between_exercises_sec":15,"rest_between_rounds_sec":60,"memo":"",
+     "exercises":[
+       {"id":"tpl-e1","name":"プランク","value":30,"unit":"sec","load":"","memo":""},
+       {"id":"tpl-e2","name":"サイドプランク","value":20,"unit":"sec","load":"","memo":"左右"},
+       {"id":"tpl-e3","name":"デッドバグ","value":10,"unit":"reps","load":"","memo":""}]}
+  ]'::jsonb, null);
