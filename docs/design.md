@@ -47,6 +47,7 @@
 | メール送信 | Gmail の SMTP（アプリパスワード）を Supabase Auth の独自 SMTP に設定 | Supabase の標準メールは組織メンバー以外に送れないため、独自 SMTP が必須。Gmail は1日の送信上限があるが、この人数なら十分 |
 | プッシュ通知 | Web Push（VAPID 鍵は自前で生成） | 無料 |
 | テスト | Vitest（ロジック）、pgTAP（RLS とトリガー）、Playwright（画面操作） | — |
+| デプロイ | GitHub Actions（`main` への push で Supabase・Cloudflare に自動反映。鍵は GitHub Secrets / Variables に置く） | 無料 |
 
 ## 3. テーブル設計
 

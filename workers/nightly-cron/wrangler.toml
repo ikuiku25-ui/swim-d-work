@@ -1,0 +1,12 @@
+# 毎晩22:00（JST）に Supabase の nightly-check を呼ぶ Worker
+name = "swim-d-work-nightly-cron"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+[triggers]
+# UTC 13:00 = JST 22:00
+crons = ["0 13 * * *"]
+
+# 秘密情報は wrangler secret で設定する（GitHub Actions が自動で設定）
+#   SUPABASE_URL  例: https://xxxx.supabase.co
+#   CRON_SECRET   Supabase の Edge Function Secrets と同じ値

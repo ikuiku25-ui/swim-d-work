@@ -66,12 +66,33 @@ docs/
 - UI の文言は日本語。コード上の識別子は英語。コミットメッセージは日本語でよい
 - 画面はスマホ（幅 375px 前後）を基準に作る。iPhone の Safari でホーム画面に追加して使うことを前提とする
 
-## よく使うコマンド（雛形作成後に確定させる）
+## よく使うコマンド
 
 ```bash
-npm run dev            # フロントエンド開発サーバー
-npm test               # Vitest
-supabase start         # ローカル Supabase
-supabase db reset      # マイグレーションと seed の再適用
-supabase test db       # pgTAP（RLS テスト）
+npm run dev               # フロントエンド開発サーバー（http://localhost:5173）
+npm test                  # Vitest
+npm run lint              # oxlint
+npm run build             # 型チェック＋本番ビルド
+npm run test:functions    # Edge Functions のテスト（Deno が必要）
+npx supabase start        # ローカル Supabase（Docker が必要）
+npx supabase db reset     # マイグレーションと seed の再適用
+npx supabase test db      # pgTAP（RLS テスト）
 ```
+
+- ローカルの環境変数は `.env.local`（フロントエンド）と `supabase/functions/.env`（Edge Functions）。見本は各 `.env.example`
+- Edge Functions は `supabase/functions/deno.json` の設定で動く（npm の node_modules は使わない）
+
+## デプロイ
+
+- `main` に push すると `.github/workflows/deploy.yml` が実行される。Supabase（マイグレーション、Secrets、Edge Functions）、Cloudflare Pages、Cron 用 Worker の順に反映される
+- 必要な Secrets と Variables、アカウントの準備は `docs/setup.md` を参照
+- 作業はフェーズごとのブランチで行い、ユーザーの確認後に `main` に取り込む
+
+## 一時的なもの（削除予定）
+
+- `/dev/push` 画面と Edge Function `push-test`：フェーズ0の通知確認用。フェーズ6で本番の通知を実装したら削除する
+
+## Claude Code のクラウド環境での注意
+
+- Docker は止まっていることがある。`dockerd` を起動してから `npx supabase start` を実行する。イメージの取得はリトライで通ることがある
+- ローカルの Edge Runtime（Docker 内）はプロキシの証明書を信頼しないため、npm のパッケージを取得できない。Edge Functions の確認は、ホスト側で `DENO_CERT=/root/.ccr/ca-bundle.crt npx deno@2 ...` を使う
