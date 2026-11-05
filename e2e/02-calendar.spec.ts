@@ -49,7 +49,21 @@ test('選手：週表示・追加・編集・コピーと貼り付け・中止�
     if (!(await page.getByRole('button', { name: new RegExp(`^${md(d)}（`) }).count())) {
       await page.getByRole('button', { name: '次の月' }).click()
     }
-    await page.getByRole('button', { name: new RegExp(`^${md(d)}（`) }).first().click()
+    const day = page.getByRole('button', { name: new RegExp(`^${md(d)}（`) }).first()
+    // CI のブラウザでだけ、月表示のマス目の位置が「安定しない」と判定されることがある（手元と iPhone では再現しない）。
+    // 原因を追えるよう位置を記録し、安定待ちをせずにタップする
+    const boxes = await day.evaluate(async (el) => {
+      const out: string[] = []
+      for (let i = 0; i < 10; i++) {
+        await new Promise((r) => requestAnimationFrame(r))
+        const r = el.getBoundingClientRect()
+        out.push(`${r.top.toFixed(1)},${r.width.toFixed(1)}`)
+      }
+      return [...new Set(out)].join(' | ') + ` scrollH=${document.documentElement.scrollHeight} vh=${innerHeight}`
+    })
+    console.log(`month cell ${d}: ${boxes}`)
+    await day.dispatchEvent('click')
+    await expect(day).toHaveAttribute('aria-pressed', 'true')
   }
   await page.getByRole('button', { name: '貼り付け（2日）' }).click()
   await expect(page.getByRole('status')).toHaveText('2日に貼り付けました。')
