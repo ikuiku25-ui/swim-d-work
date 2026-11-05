@@ -20,8 +20,8 @@ jobs:
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -29,16 +29,16 @@ jobs:
       - name: プロジェクトに接続
         run: npx supabase link --project-ref "$PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
       - name: マイグレーションを適用
-        run: npx supabase db push --password "$SUPABASE_DB_PASSWORD"
+        run: npx supabase db push --remote --password "$SUPABASE_DB_PASSWORD" --yes
       - name: Edge Function の Secrets を設定
         run: |
-          npx supabase secrets set --project-ref "$PROJECT_REF" \
+          npx supabase secrets set --yes \
             VAPID_PUBLIC_KEY="${{ vars.VITE_VAPID_PUBLIC_KEY }}" \
             VAPID_PRIVATE_KEY="${{ secrets.VAPID_PRIVATE_KEY }}" \
             VAPID_SUBJECT="${{ vars.VAPID_SUBJECT }}" \
             CRON_SECRET="${{ secrets.CRON_SECRET }}"
       - name: Edge Function をデプロイ
-        run: npx supabase functions deploy --project-ref "$PROJECT_REF"
+        run: npx supabase functions deploy --use-api --yes
 
   web:
     if: vars.VITE_SUPABASE_URL != ''
@@ -47,8 +47,8 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -75,8 +75,8 @@ jobs:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - name: Worker をデプロイ
