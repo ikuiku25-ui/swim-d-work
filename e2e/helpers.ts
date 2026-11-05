@@ -39,13 +39,21 @@ export async function latestCode(email: string, after: Date): Promise<string> {
 export async function requestCode(page: Page, email: string): Promise<{ error?: string; at: Date }> {
   await page.goto('/')
   await page.getByLabel('メールアドレス').fill(email)
-  const at = new Date(Date.now() - 1000)
-  await page.getByRole('button', { name: 'ログイン用のコードを送る' }).click()
-  const code = page.getByLabel('メールに書かれたコード')
-  const alert = page.getByRole('alert')
-  await expect(code.or(alert)).toBeVisible()
-  if (await alert.isVisible()) return { error: await alert.innerText(), at }
-  return { at }
+  for (let attempt = 0; ; attempt++) {
+    const at = new Date(Date.now() - 1000)
+    await page.getByRole('button', { name: 'ログイン用のコードを送る' }).click()
+    const code = page.getByLabel('メールに書かれたコード')
+    const alert = page.getByRole('alert')
+    await expect(code.or(alert)).toBeVisible()
+    if (!(await alert.isVisible())) return { at }
+    const error = await alert.innerText()
+    // 同じアドレスへの連続送信は数秒あけないと断られる（招待の直後など）。少し待って送り直す
+    if (error.includes('短い時間に何度も送信されました') && attempt < 6) {
+      await page.waitForTimeout(3000)
+      continue
+    }
+    return { error, at }
+  }
 }
 
 /** コードでログインし、ログイン後の画面になるまで待つ */

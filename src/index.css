@@ -1,5 +1,10 @@
 @import 'tailwindcss';
 
+html {
+  /* スクロールバーの出入りで横幅が変わらないようにする（正方形のマス目が揺れ続けるのを防ぐ） */
+  scrollbar-gutter: stable;
+}
+
 :root {
   font-family: system-ui, -apple-system, 'Hiragino Sans', 'Noto Sans JP', sans-serif;
   -webkit-text-size-adjust: 100%;

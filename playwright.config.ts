@@ -21,9 +21,12 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npx vite --port 5173 --strictPort',
+    // CI では本番と同じビルドで確かめる（開発サーバーは依存関係の最適化で途中に読み込み直すことがある）
+    command: process.env.CI
+      ? 'npm run build && npx vite preview --port 5173 --strictPort'
+      : 'npx vite --port 5173 --strictPort',
     url: 'http://localhost:5173',
     reuseExistingServer: true,
-    timeout: 60_000,
+    timeout: 180_000,
   },
 })
