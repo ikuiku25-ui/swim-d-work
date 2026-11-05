@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { formatMonthDay, todayJst } from '../../lib/date'
 import {
   cancelReasonSchema,
@@ -30,7 +30,16 @@ export function EventFormPage() {
   const event = useEvent(id)
 
   if (id && event.isPending) return <p className="text-sm text-slate-500">読み込み中…</p>
-  if (id && !event.data) return <p className="text-sm text-red-600">予定が見つかりませんでした。</p>
+  if (id && !event.data) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-red-600">予定が見つかりませんでした。削除された可能性があります。</p>
+        <Link to="/" replace className="inline-block rounded-lg bg-sky-700 px-4 py-3 text-white">
+          カレンダーに戻る
+        </Link>
+      </div>
+    )
+  }
   return <EventForm key={id ?? 'new'} event={event.data ?? null} />
 }
 
@@ -86,10 +95,15 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
     navigate('/month')
   }
 
-  const onDelete = () => {
+  const onDelete = async () => {
     if (!event) return
     if (!window.confirm('この予定を削除しますか？')) return
-    remove.mutate(event.id, { onSuccess: back, onError: (err) => setError(saveErrorMessage(err)) })
+    try {
+      await remove.mutateAsync(event.id)
+      back()
+    } catch (err) {
+      setError(saveErrorMessage(err))
+    }
   }
 
   const onRestore = () => {

@@ -63,13 +63,17 @@ export function useUpdateEvent() {
 }
 
 export function useDeleteEvent() {
-  const invalidate = useInvalidateEvents()
+  const qc = useQueryClient()
   return useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from('events').delete().eq('id', id)
       if (error) throw error
     },
-    onSuccess: invalidate,
+    onSuccess: (_data, id) => {
+      // 削除した予定そのものは読み直さない（読み直すと「見つかりません」に切り替わってしまう）
+      qc.removeQueries({ queryKey: ['events', 'one', id] })
+      return qc.invalidateQueries({ queryKey: ['events', 'range'], refetchType: 'all' })
+    },
   })
 }
 
