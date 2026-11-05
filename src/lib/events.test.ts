@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cancelReasonSchema, eventInputSchema, groupByDate, pasteRows, toTemplate } from './events'
+import { cancelReasonSchema, describeChange, eventInputSchema, groupByDate, pasteRows, toTemplate } from './events'
 
 const valid = { kind: 'dryland', date: '2026-11-10', start_time: '16:00', place: '学校', duration_min: '40' }
 
@@ -53,5 +53,19 @@ describe('groupByDate', () => {
     ])
     expect(m.get('2026-11-10')?.map((e) => e.id)).toEqual(['a', 'b'])
     expect(m.get('2026-11-11')?.map((e) => e.id)).toEqual(['c'])
+  })
+})
+
+describe('describeChange', () => {
+  const from = { date: '2026-11-10', start_time: '16:00', place: '学校', duration_min: 40 }
+  it('日時の変更', () => {
+    expect(describeChange(from, { date: '2026-11-12', start_time: '16:00:00', place: '学校', duration_min: 40 })).toBe(
+      '11/10 16:00 → 11/12 16:00',
+    )
+  })
+  it('場所と時間の変更', () => {
+    expect(describeChange(from, { date: '2026-11-10', start_time: '16:00:00', place: '自宅', duration_min: 30 })).toBe(
+      '場所 学校 → 自宅、40分 → 30分',
+    )
   })
 })

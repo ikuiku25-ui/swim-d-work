@@ -17,7 +17,7 @@ export function useEventsInRange(from: DateStr, to: DateStr) {
         .order('start_time')
         .order('created_at')
       if (error) throw error
-      return data as CalendarEvent[]
+      return data as unknown as CalendarEvent[]
     },
   })
 }
@@ -29,7 +29,7 @@ export function useEvent(id: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase.from('events').select(EVENT_COLUMNS).eq('id', id!).maybeSingle()
       if (error) throw error
-      return data as CalendarEvent | null
+      return data as unknown as CalendarEvent | null
     },
   })
 }
@@ -79,7 +79,9 @@ export function useDeleteEvent() {
 
 /** 保存失敗時の利用者向けメッセージ */
 export function saveErrorMessage(e: unknown): string {
-  const msg = e instanceof Error ? e.message : String(e)
+  const err = e as { code?: string; message?: string }
+  if (err?.code === 'P0001' && err.message) return err.message
+  const msg = e instanceof Error ? e.message : String(err?.message ?? e)
   if (/fetch|network/i.test(msg)) return '通信できませんでした。電波の良いところでもう一度試してください。'
   return '保存できませんでした。もう一度試してください。'
 }

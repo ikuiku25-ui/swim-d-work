@@ -1,10 +1,17 @@
 import { Link } from 'react-router'
 import { formatDuration, formatTime } from '../../lib/date'
-import { kindLabel, kindStyle, type CalendarEvent } from '../../lib/events'
+import { kindLabel, kindStyle, menuState, type CalendarEvent } from '../../lib/events'
 
-/** ドライランド枠のメニュー状態の印（メニューはフェーズ3で追加） */
-function MenuMark({ event }: { event: CalendarEvent }) {
+/** ドライランド枠のメニュー状態の印 */
+export function MenuMark({ event }: { event: CalendarEvent }) {
   if (event.kind !== 'dryland' || event.status === 'canceled') return null
+  if (menuState(event) === 'set') {
+    return (
+      <span className="rounded bg-white/80 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-300">
+        メニューあり
+      </span>
+    )
+  }
   return (
     <span className="rounded bg-white/80 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-300">
       メニュー未設定

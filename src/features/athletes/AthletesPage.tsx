@@ -1,21 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
-import { callFunction, supabase } from '../../lib/supabase'
+import { callFunction } from '../../lib/supabase'
 import type { AthleteListItem } from '../../lib/types'
 import { athleteStatus, athleteStatusLabel } from './athleteStatus'
+import { useAthletes } from './useAthletes'
 
 const MAX_ATHLETES = 5
 
-function useAthletes() {
-  return useQuery({
-    queryKey: ['athletes'],
-    queryFn: async () => {
-      const { data, error } = await supabase.rpc('list_athletes')
-      if (error) throw error
-      return data as AthleteListItem[]
-    },
-  })
-}
 
 export function AthletesPage() {
   const athletes = useAthletes()

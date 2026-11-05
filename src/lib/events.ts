@@ -14,14 +14,19 @@ export type CalendarEvent = {
   duration_min: number
   status: EventStatus
   cancel_reason: string | null
-  changed_from: unknown
+  changed_from: ChangedFrom | null
   change_ack_at: string | null
   completed_at: string | null
   updated_at: string
+  /** メニューが入っていれば、その更新日時など（なければ null） */
+  menu: { event_id: string; updated_at: string; notified_at: string | null } | null
 }
 
+/** メニュー設定後に変わった項目の、変更前の値 */
+export type ChangedFrom = { date: string; start_time: string; place: string; duration_min: number }
+
 export const EVENT_COLUMNS =
-  'id, athlete_id, kind, date, start_time, place, duration_min, status, cancel_reason, changed_from, change_ack_at, completed_at, updated_at'
+  'id, athlete_id, kind, date, start_time, place, duration_min, status, cancel_reason, changed_from, change_ack_at, completed_at, updated_at, menu:menus(event_id, updated_at, notified_at)'
 
 export const kindLabel: Record<EventKind, string> = {
   dryland: 'ドライランド',
@@ -84,4 +89,26 @@ export function groupByDate<T extends Pick<CalendarEvent, 'date' | 'start_time'>
     map.set(e.date, list)
   }
   return map
+}
+
+export type MenuState = 'none' | 'set'
+
+/** ドライランド枠のメニュー状態（実施済みはフェーズ4で追加） */
+export function menuState(e: Pick<CalendarEvent, 'menu'>): MenuState {
+  return e.menu ? 'set' : 'none'
+}
+
+/** 変更ありの表示：'11/10 16:00 学校 40分 → 11/12 17:00 自宅 40分' のうち変わった項目だけ */
+export function describeChange(
+  from: ChangedFrom,
+  to: Pick<CalendarEvent, 'date' | 'start_time' | 'place' | 'duration_min'>,
+): string {
+  const md = (d: string) => `${Number(d.slice(5, 7))}/${Number(d.slice(8, 10))}`
+  const parts: string[] = []
+  if (from.date !== to.date || from.start_time !== to.start_time.slice(0, 5)) {
+    parts.push(`${md(from.date)} ${from.start_time} → ${md(to.date)} ${to.start_time.slice(0, 5)}`)
+  }
+  if (from.place !== to.place) parts.push(`場所 ${from.place || 'なし'} → ${to.place || 'なし'}`)
+  if (from.duration_min !== to.duration_min) parts.push(`${from.duration_min}分 → ${to.duration_min}分`)
+  return parts.join('、')
 }

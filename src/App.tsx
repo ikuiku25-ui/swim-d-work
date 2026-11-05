@@ -8,6 +8,8 @@ import { CopyProvider } from './features/calendar/CopyContext'
 import { EventFormPage } from './features/calendar/EventFormPage'
 import { MonthPage } from './features/calendar/MonthPage'
 import { WeekPage } from './features/calendar/WeekPage'
+import { CoachCalendarPage } from './features/coach/CoachCalendarPage'
+import { CoachEventPage } from './features/coach/CoachEventPage'
 import { PushTestPage } from './features/dev/PushTestPage'
 
 function FullScreenMessage({ children }: { children: ReactNode }) {
@@ -15,15 +17,6 @@ function FullScreenMessage({ children }: { children: ReactNode }) {
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center gap-4 p-6 text-center">
       {children}
     </main>
-  )
-}
-
-function CoachHome() {
-  return (
-    <div className="space-y-2">
-      <h1 className="text-xl font-bold">全員カレンダー</h1>
-      <p className="text-sm text-slate-600">フェーズ3で作ります。まずは「選手管理」から選手を招待してください。</p>
-    </div>
   )
 }
 
@@ -64,7 +57,8 @@ function AuthedRoutes() {
       <Route path="/dev/push" element={<PushTestPage />} />
       {profile.role === 'coach' ? (
         <>
-          <Route path="/coach" element={<AppShell><CoachHome /></AppShell>} />
+          <Route path="/coach" element={<AppShell><CoachCalendarPage /></AppShell>} />
+          <Route path="/coach/events/:id" element={<AppShell><CoachEventPage /></AppShell>} />
           <Route path="/coach/athletes" element={<AppShell><AthletesPage /></AppShell>} />
         </>
       ) : (

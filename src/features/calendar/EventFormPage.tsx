@@ -10,6 +10,8 @@ import {
   type CalendarEvent,
   type EventKind,
 } from '../../lib/events'
+import { MenuView } from '../menu/MenuView'
+import { useMenu } from '../menu/useMenu'
 import { useCopy } from './CopyContext'
 import { saveErrorMessage, useCreateEvents, useDeleteEvent, useEvent, useUpdateEvent } from './useEvents'
 
@@ -74,6 +76,8 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
 
   const set = <K extends keyof FormValues>(k: K, v: FormValues[K]) => setValues((s) => ({ ...s, [k]: v }))
   const canceled = event?.status === 'canceled'
+  const hasMenu = !!event?.menu
+  const menu = useMenu(hasMenu ? event?.id : undefined)
   const busy = create.isPending || update.isPending || remove.isPending
 
   const onSubmit = (e: FormEvent) => {
@@ -123,6 +127,13 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
         <h1 className="text-lg font-bold">{event ? '予定の編集' : '予定の追加'}</h1>
       </div>
 
+      {hasMenu && (
+        <section className="space-y-2">
+          <h2 className="font-bold">コーチからのメニュー</h2>
+          {menu.data ? <MenuView blocks={menu.data.blocks} /> : <p className="text-sm text-slate-500">読み込み中…</p>}
+        </section>
+      )}
+
       {canceled && (
         <div className="rounded-lg bg-slate-100 p-3 text-sm text-slate-700">
           <p className="font-bold">この予定は中止しました</p>
@@ -147,6 +158,7 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
                 key={k}
                 type="button"
                 aria-pressed={values.kind === k}
+                disabled={hasMenu && k !== values.kind}
                 onClick={() => set('kind', k)}
                 className={`whitespace-nowrap rounded-lg border px-1 py-2 text-[13px] ${
                   values.kind === k ? `${kindStyle[k].chip} font-bold ring-2 ring-offset-1` : 'border-slate-200 text-slate-600'
@@ -156,6 +168,7 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
               </button>
             ))}
           </div>
+          {hasMenu && <p className="mt-1 text-xs text-slate-500">メニューが入っているため、種類は変更できません。</p>}
         </fieldset>
 
         <div className="grid grid-cols-2 gap-3">
@@ -252,14 +265,16 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
               中止にする
             </button>
           )}
-          <button
-            type="button"
-            onClick={onDelete}
-            disabled={busy}
-            className="w-full rounded-lg bg-white px-4 py-3 text-red-700 ring-1 ring-red-300 disabled:opacity-40"
-          >
-            削除する
-          </button>
+          {!hasMenu && (
+            <button
+              type="button"
+              onClick={onDelete}
+              disabled={busy}
+              className="w-full rounded-lg bg-white px-4 py-3 text-red-700 ring-1 ring-red-300 disabled:opacity-40"
+            >
+              削除する
+            </button>
+          )}
           <p className="text-xs text-slate-500">
             コピーされるのは種類・時刻・場所・時間だけです。メニューが入った予定は、削除ではなく中止にします。
           </p>

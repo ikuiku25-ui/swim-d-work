@@ -5,7 +5,7 @@ import { useAuth } from '../features/auth/AuthProvider'
 type NavItem = { to: string; label: string }
 
 const coachNav: NavItem[] = [
-  { to: '/coach', label: 'ホーム' },
+  { to: '/coach', label: 'カレンダー' },
   { to: '/coach/athletes', label: '選手管理' },
 ]
 

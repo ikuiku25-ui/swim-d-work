@@ -36,11 +36,27 @@ end $$;
 -- 選手Aの予定（今日を基準にした日付で入れる）
 insert into public.events (athlete_id, kind, date, start_time, place, duration_min, status, cancel_reason)
 values
-  ('00000000-0000-0000-0000-0000000000a1', 'dryland', current_date, '16:00', '学校', 40, 'normal', null),
-  ('00000000-0000-0000-0000-0000000000a1', 'swim', current_date, '18:30', '市民プール', 90, 'normal', null),
-  ('00000000-0000-0000-0000-0000000000a1', 'dryland', current_date + 2, '07:00', '自宅', 30, 'normal', null),
-  ('00000000-0000-0000-0000-0000000000a1', 'meet', current_date + 10, '09:00', '県営プール', 360, 'normal', null),
-  ('00000000-0000-0000-0000-0000000000a1', 'dryland', current_date + 3, '16:00', '学校', 40, 'canceled', 'テスト期間');
+  ('00000000-0000-0000-0000-0000000000a1', 'dryland', (now() at time zone 'Asia/Tokyo')::date, '16:00', '学校', 40, 'normal', null),
+  ('00000000-0000-0000-0000-0000000000a1', 'swim', (now() at time zone 'Asia/Tokyo')::date, '18:30', '市民プール', 90, 'normal', null),
+  ('00000000-0000-0000-0000-0000000000a1', 'dryland', (now() at time zone 'Asia/Tokyo')::date + 2, '07:00', '自宅', 30, 'normal', null),
+  ('00000000-0000-0000-0000-0000000000a1', 'meet', (now() at time zone 'Asia/Tokyo')::date + 10, '09:00', '県営プール', 360, 'normal', null),
+  ('00000000-0000-0000-0000-0000000000a1', 'dryland', (now() at time zone 'Asia/Tokyo')::date + 3, '16:00', '学校', 40, 'canceled', 'テスト期間');
 -- 選手Bの予定（選手Aからは見えないことの確認用）
 insert into public.events (athlete_id, kind, date, start_time, place, duration_min)
-values ('00000000-0000-0000-0000-0000000000a2', 'dryland', current_date, '17:00', '選手Bの秘密の場所', 30);
+values ('00000000-0000-0000-0000-0000000000a2', 'dryland', (now() at time zone 'Asia/Tokyo')::date, '17:00', '選手Bの秘密の場所', 30);
+
+-- 選手Aの2日後のドライランドにメニューを入れておく
+insert into public.menus (event_id, blocks)
+select e.id, '[
+  {"id":"seed-b1","type":"single","sets":1,"rest_sec":0,"memo":"ウォームアップ",
+   "exercise":{"id":"seed-e1","name":"ジョグ","value":300,"unit":"sec","load":"","memo":""}},
+  {"id":"seed-b2","type":"circuit","rounds":3,"rest_between_exercises_sec":15,"rest_between_rounds_sec":90,"memo":"",
+   "exercises":[
+     {"id":"seed-e2","name":"スクワット","value":15,"unit":"reps","load":"自重","memo":""},
+     {"id":"seed-e3","name":"プッシュアップ","value":10,"unit":"reps","load":"自重","memo":""},
+     {"id":"seed-e4","name":"プランク","value":30,"unit":"sec","load":"","memo":""}]},
+  {"id":"seed-b3","type":"single","sets":3,"rest_sec":60,"memo":"",
+   "exercise":{"id":"seed-e5","name":"懸垂","value":8,"unit":"reps","load":"自重","memo":""}}
+]'::jsonb
+from public.events e
+where e.athlete_id = '00000000-0000-0000-0000-0000000000a1' and e.kind = 'dryland' and e.date = (now() at time zone 'Asia/Tokyo')::date + 2;
