@@ -9,7 +9,8 @@ import './index.css'
 registerSW({ immediate: true })
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+  // コーチと選手が同じデータを見るので、画面を開くたびに最新を読み直す（データは小さい）
+  defaultOptions: { queries: { retry: 1, staleTime: 0 } },
 })
 
 createRoot(document.getElementById('root')!).render(

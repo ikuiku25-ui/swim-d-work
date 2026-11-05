@@ -31,3 +31,7 @@ supabase/functions/.env
 
 # Cloudflare Worker
 .wrangler
+
+# Playwright
+test-results/
+playwright-report/

@@ -18,7 +18,7 @@
 - 通知：Web Push（VAPID）
 - テスト：Vitest、pgTAP（`supabase test db`）、Playwright
 
-## ディレクトリ構成（予定）
+## ディレクトリ構成
 
 ```
 src/
@@ -32,6 +32,7 @@ supabase/
   seed.sql          ローカル開発用のコーチ1人・選手2人
 workers/
   nightly-cron/     Cloudflare Worker（毎日 UTC 13:00 に nightly-check を呼ぶ）
+e2e/                画面操作の通しテスト（Playwright）
 docs/
 ```
 
@@ -78,6 +79,7 @@ npm run test:functions    # Edge Functions のテスト（Deno が必要）
 npx supabase start        # ローカル Supabase（Docker が必要）
 npx supabase db reset     # マイグレーションと seed の再適用
 npx supabase test db      # pgTAP（RLS テスト）
+npm run test:e2e          # Playwright の画面操作テスト（ローカルの Supabase と Edge Functions が必要。各ファイルの最初に DB を seed に戻す）
 ```
 
 - ログインはメールで届くコードを入力する方式（リンクは使わない。理由は `docs/design.md` 5章）
@@ -88,7 +90,7 @@ npx supabase test db      # pgTAP（RLS テスト）
 ## デプロイ
 
 - `main` に push すると `.github/workflows/deploy.yml` が実行される。Supabase（マイグレーション、Secrets、Edge Functions）、Cloudflare Pages、Cron 用 Worker の順に反映される
-- 必要な Secrets と Variables、アカウントの準備は `docs/setup.md` を参照
+- 必要な Secrets と Variables、アカウントの準備は `docs/setup.md`、運用の手順は `docs/operations.md` を参照
 - 作業はフェーズごとのブランチで行い、ユーザーの確認後に `main` に取り込む
 
 ## Claude Code のクラウド環境での注意

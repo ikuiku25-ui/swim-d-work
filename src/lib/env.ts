@@ -25,7 +25,3 @@ export const env = {
 export const functionsUrl =
   (import.meta.env.VITE_FUNCTIONS_URL as string | undefined)?.replace(/\/$/, '') ??
   (env.supabaseUrl ? `${env.supabaseUrl}/functions/v1` : undefined)
-
-export const missingEnv = Object.entries(env)
-  .filter(([, v]) => !v)
-  .map(([k]) => k)
