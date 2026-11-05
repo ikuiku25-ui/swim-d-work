@@ -4,7 +4,9 @@ type Env = {
 }
 
 async function callNightlyCheck(env: Env): Promise<Response> {
-  return fetch(`${env.SUPABASE_URL}/functions/v1/nightly-check`, {
+  // 末尾に /rest/v1/ などが付いていても動くよう、https://xxxx.supabase.co の部分だけを使う
+  const base = new URL(env.SUPABASE_URL.trim()).origin
+  return fetch(`${base}/functions/v1/nightly-check`, {
     method: 'POST',
     headers: { 'x-cron-secret': env.CRON_SECRET },
   })
