@@ -19,7 +19,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col">
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
-        <span className="font-bold text-sky-900">SWIM D-work</span>
+        <Link to={profile?.role === 'coach' ? '/coach' : '/'} className="font-bold text-sky-900" aria-label="カレンダーに戻る">
+          SWIM D-work
+        </Link>
         <div className="flex items-center gap-3 text-sm">
           <span className="text-slate-600">{profile?.display_name}</span>
           <Link to="/settings" className="text-sky-700">

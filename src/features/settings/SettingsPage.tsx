@@ -1,10 +1,15 @@
+import { Link } from 'react-router'
 import { useAuth } from '../auth/AuthProvider'
 import { NotificationSettings } from './NotificationSettings'
 
 export function SettingsPage() {
   const { profile, signOut } = useAuth()
+  const home = profile?.role === 'coach' ? '/coach' : '/'
   return (
     <div className="space-y-4">
+      <Link to={home} className="text-sky-700">
+        ← カレンダー
+      </Link>
       <h1 className="text-xl font-bold">設定</h1>
       <section className="space-y-2 rounded-xl bg-white p-4 shadow-sm">
         <h2 className="font-bold">通知</h2>
