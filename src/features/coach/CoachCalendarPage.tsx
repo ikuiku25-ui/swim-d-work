@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { addDays, daysFrom, formatDuration, formatMonthDay, formatTime, todayJst } from '../../lib/date'
-import { describeChange, groupByDate, kindLabel, menuState, type CalendarEvent } from '../../lib/events'
+import { describeChange, groupByDate, kindLabel, menuState, menuStateLabel, type CalendarEvent } from '../../lib/events'
 import type { AthleteListItem } from '../../lib/types'
 import { useAthletes } from '../athletes/useAthletes'
 import { useEventsInRange } from '../calendar/useEvents'
@@ -120,6 +120,13 @@ function FilterChip({ active, onClick, label, color }: { active: boolean; onClic
   )
 }
 
+const coachMarkStyle = {
+  none: 'bg-amber-500 text-white',
+  set: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-300',
+  in_progress: 'bg-sky-50 text-sky-700 ring-1 ring-sky-300',
+  done: 'bg-emerald-600 text-white',
+} as const
+
 function CoachEventRow({ event, athlete }: { event: CalendarEvent; athlete?: AthleteListItem }) {
   const canceled = event.status === 'canceled'
   const isDryland = event.kind === 'dryland'
@@ -139,11 +146,7 @@ function CoachEventRow({ event, athlete }: { event: CalendarEvent; athlete?: Ath
         <span className="ml-auto flex gap-1">
           {canceled && <Badge className="bg-slate-200 text-slate-600">中止</Badge>}
           {event.changed_from && <Badge className="bg-violet-100 text-violet-800 ring-1 ring-violet-300">変更あり</Badge>}
-          {isDryland && !canceled && (unset ? (
-            <Badge className="bg-amber-500 text-white">メニュー未設定</Badge>
-          ) : (
-            <Badge className="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-300">メニューあり</Badge>
-          ))}
+          {isDryland && !canceled && <Badge className={coachMarkStyle[menuState(event)]}>{menuStateLabel[menuState(event)]}</Badge>}
         </span>
       </div>
       <p className="mt-0.5 text-xs text-slate-600">

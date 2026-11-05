@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cancelReasonSchema, describeChange, eventInputSchema, groupByDate, pasteRows, toTemplate } from './events'
+import { cancelReasonSchema, describeChange, eventInputSchema, groupByDate, menuState, pasteRows, toTemplate } from './events'
 
 const valid = { kind: 'dryland', date: '2026-11-10', start_time: '16:00', place: '学校', duration_min: '40' }
 
@@ -67,5 +67,16 @@ describe('describeChange', () => {
     expect(describeChange(from, { date: '2026-11-10', start_time: '16:00:00', place: '自宅', duration_min: 30 })).toBe(
       '場所 学校 → 自宅、40分 → 30分',
     )
+  })
+})
+
+describe('menuState', () => {
+  const menu = { event_id: 'x', updated_at: '', notified_at: null }
+  it('未設定／設定済み／実施中／実施済み', () => {
+    expect(menuState({ menu: null, record: null })).toBe('none')
+    expect(menuState({ menu, record: null })).toBe('set')
+    expect(menuState({ menu, record: { started: false, completed_at: null } })).toBe('set')
+    expect(menuState({ menu, record: { started: true, completed_at: null } })).toBe('in_progress')
+    expect(menuState({ menu, record: { started: true, completed_at: '2026-11-10T08:00:00Z' } })).toBe('done')
   })
 })

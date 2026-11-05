@@ -129,6 +129,16 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
 
       {hasMenu && (
         <section className="space-y-2">
+          {!canceled && event && (
+            <Link
+              to={`/events/${event.id}/record`}
+              className={`block rounded-lg px-4 py-3 text-center font-medium ${
+                event.record?.completed_at ? 'bg-white text-emerald-700 ring-1 ring-emerald-300' : 'bg-emerald-600 text-white'
+              }`}
+            >
+              {event.record?.completed_at ? '✓ 実施済み（記録を見る・直す）' : event.record?.started ? '記録の続きを入れる' : 'メニューを実施する（記録）'}
+            </Link>
+          )}
           <h2 className="font-bold">コーチからのメニュー</h2>
           {menu.data ? <MenuView blocks={menu.data.blocks} /> : <p className="text-sm text-slate-500">読み込み中…</p>}
         </section>

@@ -1,20 +1,21 @@
 import { Link } from 'react-router'
 import { formatDuration, formatTime } from '../../lib/date'
-import { kindLabel, kindStyle, menuState, type CalendarEvent } from '../../lib/events'
+import { kindLabel, kindStyle, menuState, menuStateLabel, type CalendarEvent } from '../../lib/events'
+
+const markStyle = {
+  none: 'text-amber-700 ring-amber-300',
+  set: 'text-emerald-700 ring-emerald-300',
+  in_progress: 'text-sky-700 ring-sky-300',
+  done: 'bg-emerald-600 text-white ring-emerald-600',
+} as const
 
 /** ドライランド枠のメニュー状態の印 */
-export function MenuMark({ event }: { event: CalendarEvent }) {
+function MenuMark({ event }: { event: CalendarEvent }) {
   if (event.kind !== 'dryland' || event.status === 'canceled') return null
-  if (menuState(event) === 'set') {
-    return (
-      <span className="rounded bg-white/80 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-300">
-        メニューあり
-      </span>
-    )
-  }
+  const st = menuState(event)
   return (
-    <span className="rounded bg-white/80 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-300">
-      メニュー未設定
+    <span className={`rounded bg-white/80 px-1.5 py-0.5 text-[11px] font-medium ring-1 ${markStyle[st]}`}>
+      {menuStateLabel[st]}
     </span>
   )
 }

@@ -16,17 +16,18 @@ export type CalendarEvent = {
   cancel_reason: string | null
   changed_from: ChangedFrom | null
   change_ack_at: string | null
-  completed_at: string | null
   updated_at: string
   /** メニューが入っていれば、その更新日時など（なければ null） */
   menu: { event_id: string; updated_at: string; notified_at: string | null } | null
+  /** 実施記録があれば、記録開始・完了の状態（なければ null） */
+  record: { started: boolean; completed_at: string | null } | null
 }
 
 /** メニュー設定後に変わった項目の、変更前の値 */
 export type ChangedFrom = { date: string; start_time: string; place: string; duration_min: number }
 
 export const EVENT_COLUMNS =
-  'id, athlete_id, kind, date, start_time, place, duration_min, status, cancel_reason, changed_from, change_ack_at, completed_at, updated_at, menu:menus(event_id, updated_at, notified_at)'
+  'id, athlete_id, kind, date, start_time, place, duration_min, status, cancel_reason, changed_from, change_ack_at, updated_at, menu:menus(event_id, updated_at, notified_at), record:records(started, completed_at)'
 
 export const kindLabel: Record<EventKind, string> = {
   dryland: 'ドライランド',
@@ -91,11 +92,21 @@ export function groupByDate<T extends Pick<CalendarEvent, 'date' | 'start_time'>
   return map
 }
 
-export type MenuState = 'none' | 'set'
+export type MenuState = 'none' | 'set' | 'in_progress' | 'done'
 
-/** ドライランド枠のメニュー状態（実施済みはフェーズ4で追加） */
-export function menuState(e: Pick<CalendarEvent, 'menu'>): MenuState {
-  return e.menu ? 'set' : 'none'
+/** ドライランド枠の状態：メニュー未設定／設定済み／実施中（記録開始・未完了）／実施済み（完了） */
+export function menuState(e: Pick<CalendarEvent, 'menu' | 'record'>): MenuState {
+  if (!e.menu) return 'none'
+  if (e.record?.completed_at) return 'done'
+  if (e.record?.started) return 'in_progress'
+  return 'set'
+}
+
+export const menuStateLabel: Record<MenuState, string> = {
+  none: 'メニュー未設定',
+  set: 'メニューあり',
+  in_progress: '実施中',
+  done: '実施済み',
 }
 
 /** 変更ありの表示：'11/10 16:00 学校 40分 → 11/12 17:00 自宅 40分' のうち変わった項目だけ */

@@ -11,6 +11,7 @@ import { WeekPage } from './features/calendar/WeekPage'
 import { CoachCalendarPage } from './features/coach/CoachCalendarPage'
 import { CoachEventPage } from './features/coach/CoachEventPage'
 import { PushTestPage } from './features/dev/PushTestPage'
+import { RecordPage } from './features/record/RecordPage'
 
 function FullScreenMessage({ children }: { children: ReactNode }) {
   return (
@@ -67,6 +68,7 @@ function AuthedRoutes() {
           <Route path="/month" element={<AppShell><MonthPage /></AppShell>} />
           <Route path="/events/new" element={<AppShell><EventFormPage /></AppShell>} />
           <Route path="/events/:id" element={<AppShell><EventFormPage /></AppShell>} />
+          <Route path="/events/:id/record" element={<AppShell><RecordPage /></AppShell>} />
         </>
       )}
       <Route path="*" element={<Navigate to={home} replace />} />

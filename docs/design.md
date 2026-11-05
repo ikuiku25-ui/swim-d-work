@@ -56,10 +56,10 @@
 | テーブル | 主な列 | 書き込める人 |
 | --- | --- | --- |
 | `profiles` | `id`（= auth.users.id）、`role`（coach / athlete）、`display_name`、`color`、`is_active` | コーチ（招待・停止は Edge Function 経由） |
-| `events`（予定枠） | `id`、`athlete_id`、`kind`（dryland / swim / meet）、`date`、`start_time`、`place`、`duration_min`、`status`（normal / canceled）、`cancel_reason`、`changed_from`（jsonb：メニュー設定後の最初の日付・時刻・場所・時間）、`change_ack_at`、`completed_at`、`created_at`、`updated_at` | 選手本人 |
+| `events`（予定枠） | `id`、`athlete_id`、`kind`（dryland / swim / meet）、`date`、`start_time`、`place`、`duration_min`、`status`（normal / canceled）、`cancel_reason`、`changed_from`（jsonb：メニュー設定後の最初の日付・時刻・場所・時間）、`change_ack_at`、`created_at`、`updated_at` | 選手本人 |
 | `event_cancel_history` | `event_id`、`reason`、`canceled_at`、`restored_at` | トリガーが自動で記録 |
 | `menus`（計画） | `event_id`（主キー、1枠に1つ）、`blocks`（jsonb）、`updated_at`、`notified_at` | コーチ |
-| `records`（実績） | `event_id`（主キー）、`exercise_results`（jsonb：種目IDごとの checked・実績値・負荷）、`block_results`（jsonb：ブロックIDごとの実施セット数・実施周回数）、`added_exercises`（jsonb）、`started`（bool、トリガーが計算） | 選手本人 |
+| `records`（実績） | `event_id`（主キー）、`exercise_results`（jsonb：種目IDごとの checked・実績値・負荷）、`block_results`（jsonb：ブロックIDごとの実施セット数・実施周回数）、`added_exercises`（jsonb）、`completed_at`（完了）、`started`（bool、トリガーが計算） | 選手本人 |
 | `templates` | `id`、`title`、`blocks`（jsonb、menus と同じ形式）、`reference_note_id` | コーチ |
 | `reference_notes`（参考メニュー帳） | `id`、`title`、`url`、`memo`、`tags text[]` | コーチ |
 | `exercise_names`（種目名の候補） | `name`（一意）、`last_used_at` | menus・templates 保存時のトリガー |
@@ -175,7 +175,21 @@ RLS だけでは表せない規則は、トリガーで強制する。
 - コーチが「確認済みにする」を押すと（関数 `acknowledge_event_change`）、`changed_from` を消して `change_ack_at` を記録する。その後にまた変更されれば、確認時点の値から改めて記録する
 - 一括貼り付け：今日から4週間の、有効な選手のドライランド枠から選ぶ。メニューがある枠は「設定済み・上書き」と表示し、選んだときだけ上書きする。貼り付けと同時に、編集中の元の枠も同じ内容で保存する
 - コーチのカレンダーは週表示（今日から7日）。選手で絞り込める。停止中の選手は初期状態で非表示
-- 選手への通知ボタン（「保存して選手に通知」）と「未通知」の印はフェーズ6で追加する。記録開始後のロックはフェーズ4で追加する
+- 選手への通知ボタン（「保存して選手に通知」）と「未通知」の印はフェーズ6で追加する
+
+### 実施記録（フェーズ4で実装）
+
+- `records` は1枠に1行。書けるのは有効な選手本人だけで、メニューが入った、中止されていない自分の枠に限る。コーチは読むだけ。削除は誰もできない
+- 形式（DB の `validate_record()` で検証）
+  - `exercise_results`：`{ 種目ID: { checked, value, load } }`。`value` と `load` は**計画と違うときだけ**値を入れ、同じなら `null`
+  - `block_results`：`{ ブロックID: { sets | rounds } }`。単独は実施セット数、サーキットは実施周回数。計画と同じなら `null`
+  - `added_exercises`：選手が追加した種目（メニューの種目と同じ形式、20個まで）
+- 完了は `records.completed_at`（`events.completed_at` は使わないため削除した）
+- `started`（記録開始）はトリガーが計算する。条件は1章「Q1 の記録開始の定義」のとおり
+- 記録開始後は、コーチはメニューを変更・削除できない（トリガー）。コーチの画面は確認画面に切り替わり、一括貼り付けの候補からも外れる
+- 選手の記録画面は入力のたびに自動保存（約0.8秒後、画面を離れるときにも保存）。名前が空の追加分は、名前を入れるまで保存しない
+- カレンダーの印：メニュー未設定／メニューあり／実施中（記録開始・未完了）／実施済み（完了）
+- コーチの確認画面：計画どおりは通常表示、数値を変えた種目とセット数・周回数は「計画 → 実績」、未チェックは赤、追加分は青で表示し、件数を上部にまとめる
 
 ## 6. 表示上の決まり
 

@@ -7,14 +7,18 @@ import { useAthletes } from '../athletes/useAthletes'
 import { saveErrorMessage, useEvent, useEventsInRange } from '../calendar/useEvents'
 import { MenuEditor } from '../menu/MenuEditor'
 import { useAcknowledgeChange, useDeleteMenu, useMenu, useSaveMenus } from '../menu/useMenu'
+import { OutcomeView } from '../record/OutcomeView'
+import { useRecord } from '../record/useRecord'
+import type { RecordRow } from '../../lib/record'
 
 /** コーチ：ドライランド枠の詳細とメニュー作成・編集 */
 export function CoachEventPage() {
   const { id } = useParams()
   const event = useEvent(id)
   const menu = useMenu(id)
+  const record = useRecord(id)
 
-  if (event.isPending || menu.isPending) return <p className="text-sm text-slate-500">読み込み中…</p>
+  if (event.isPending || menu.isPending || record.isPending) return <p className="text-sm text-slate-500">読み込み中…</p>
   if (!event.data) {
     return (
       <div className="space-y-4">
@@ -25,10 +29,28 @@ export function CoachEventPage() {
       </div>
     )
   }
-  return <Editor key={event.data.id} event={event.data} initial={menu.data?.blocks ?? []} hasMenu={!!menu.data} />
+  return (
+    <Editor
+      key={event.data.id}
+      event={event.data}
+      initial={menu.data?.blocks ?? []}
+      hasMenu={!!menu.data}
+      record={record.data ?? null}
+    />
+  )
 }
 
-function Editor({ event, initial, hasMenu }: { event: CalendarEvent; initial: MenuBlocks; hasMenu: boolean }) {
+function Editor({
+  event,
+  initial,
+  hasMenu,
+  record,
+}: {
+  event: CalendarEvent
+  initial: MenuBlocks
+  hasMenu: boolean
+  record: RecordRow | null
+}) {
   const athletes = useAthletes()
   const athlete = athletes.data?.find((a) => a.id === event.athlete_id)
   const [blocks, setBlocks] = useState<MenuBlocks>(initial)
@@ -39,6 +61,9 @@ function Editor({ event, initial, hasMenu }: { event: CalendarEvent; initial: Me
   const remove = useDeleteMenu()
   const ack = useAcknowledgeChange()
   const canceled = event.status === 'canceled'
+  // 選手が記録を始めたら、メニューは変更できない（確認画面を出す）
+  const locked = hasMenu && !!record?.started
+  const editable = !canceled && !locked
 
   const onChange = (b: MenuBlocks) => {
     setBlocks(b)
@@ -113,7 +138,20 @@ function Editor({ event, initial, hasMenu }: { event: CalendarEvent; initial: Me
         )}
       </section>
 
-      {!canceled && <MenuEditor blocks={blocks} onChange={onChange} />}
+      {locked && (
+        <section className="space-y-2">
+          <h2 className="font-bold">実施結果</h2>
+          <p className="text-xs text-slate-500">選手が記録を始めたため、メニューは変更できません。</p>
+          <OutcomeView blocks={initial} record={record} />
+        </section>
+      )}
+      {canceled && hasMenu && !locked && (
+        <section className="space-y-2">
+          <h2 className="font-bold">メニュー</h2>
+          <OutcomeView blocks={initial} record={record} />
+        </section>
+      )}
+      {editable && <MenuEditor blocks={blocks} onChange={onChange} />}
 
       {message && (
         <p role={message.ok ? 'status' : 'alert'} className={`rounded-lg p-3 text-sm ${message.ok ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-700'}`}>
@@ -121,7 +159,7 @@ function Editor({ event, initial, hasMenu }: { event: CalendarEvent; initial: Me
         </p>
       )}
 
-      {!canceled && (
+      {editable && (
         <div className="space-y-2">
           <button
             type="button"
@@ -144,7 +182,7 @@ function Editor({ event, initial, hasMenu }: { event: CalendarEvent; initial: Me
         </div>
       )}
 
-      {!canceled && (
+      {editable && (
         <div className="fixed inset-x-0 bottom-14 z-10 mx-auto max-w-md px-4 pb-[env(safe-area-inset-bottom)]">
           <button
             type="button"
@@ -198,6 +236,7 @@ function PasteDialog({
       e.id !== currentEventId &&
       e.kind === 'dryland' &&
       e.status === 'normal' &&
+      !e.record?.started &&
       byId.get(e.athlete_id)?.is_active,
   )
   const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]))
@@ -214,7 +253,7 @@ function PasteDialog({
     <div className="fixed inset-0 z-20 flex items-end bg-black/40" role="dialog" aria-modal="true" aria-label="メニューの一括貼り付け">
       <div className="mx-auto flex max-h-[85dvh] w-full max-w-md flex-col rounded-t-2xl bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
         <h2 className="font-bold">他の選手・日付にも入れる</h2>
-        <p className="text-xs text-slate-500">今日から4週間のドライランド枠です。メニューがある枠は、選ぶと上書きされます。</p>
+        <p className="text-xs text-slate-500">今日から4週間のドライランド枠です（選手が記録を始めた枠は除く）。メニューがある枠は、選ぶと上書きされます。</p>
         <div className="mt-2 flex-1 space-y-1 overflow-y-auto">
           {events.isPending && <p className="text-sm text-slate-500">読み込み中…</p>}
           {events.isSuccess && candidates.length === 0 && <p className="text-sm text-slate-500">対象の枠がありません。</p>}
