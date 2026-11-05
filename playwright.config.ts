@@ -17,6 +17,8 @@ export default defineConfig({
     // iPhone の画面サイズとタッチで、Chromium を使う
     ...devices['iPhone 13'],
     browserName: 'chromium',
+    // オフライン用の Service Worker は、初回の登録で画面を読み込み直すことがあるため、画面操作のテストでは止める
+    serviceWorkers: 'block',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
