@@ -32,3 +32,15 @@ begin
     );
   end loop;
 end $$;
+
+-- 選手Aの予定（今日を基準にした日付で入れる）
+insert into public.events (athlete_id, kind, date, start_time, place, duration_min, status, cancel_reason)
+values
+  ('00000000-0000-0000-0000-0000000000a1', 'dryland', current_date, '16:00', '学校', 40, 'normal', null),
+  ('00000000-0000-0000-0000-0000000000a1', 'swim', current_date, '18:30', '市民プール', 90, 'normal', null),
+  ('00000000-0000-0000-0000-0000000000a1', 'dryland', current_date + 2, '07:00', '自宅', 30, 'normal', null),
+  ('00000000-0000-0000-0000-0000000000a1', 'meet', current_date + 10, '09:00', '県営プール', 360, 'normal', null),
+  ('00000000-0000-0000-0000-0000000000a1', 'dryland', current_date + 3, '16:00', '学校', 40, 'canceled', 'テスト期間');
+-- 選手Bの予定（選手Aからは見えないことの確認用）
+insert into public.events (athlete_id, kind, date, start_time, place, duration_min)
+values ('00000000-0000-0000-0000-0000000000a2', 'dryland', current_date, '17:00', '選手Bの秘密の場所', 30);

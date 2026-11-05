@@ -4,6 +4,10 @@ import { AppShell } from './components/AppShell'
 import { AthletesPage } from './features/athletes/AthletesPage'
 import { useAuth } from './features/auth/AuthProvider'
 import { LoginPage } from './features/auth/LoginPage'
+import { CopyProvider } from './features/calendar/CopyContext'
+import { EventFormPage } from './features/calendar/EventFormPage'
+import { MonthPage } from './features/calendar/MonthPage'
+import { WeekPage } from './features/calendar/WeekPage'
 import { PushTestPage } from './features/dev/PushTestPage'
 
 function FullScreenMessage({ children }: { children: ReactNode }) {
@@ -19,15 +23,6 @@ function CoachHome() {
     <div className="space-y-2">
       <h1 className="text-xl font-bold">全員カレンダー</h1>
       <p className="text-sm text-slate-600">フェーズ3で作ります。まずは「選手管理」から選手を招待してください。</p>
-    </div>
-  )
-}
-
-function AthleteHome() {
-  return (
-    <div className="space-y-2">
-      <h1 className="text-xl font-bold">カレンダー</h1>
-      <p className="text-sm text-slate-600">フェーズ2で作ります。ログインできていれば準備完了です。</p>
     </div>
   )
 }
@@ -73,7 +68,12 @@ function AuthedRoutes() {
           <Route path="/coach/athletes" element={<AppShell><AthletesPage /></AppShell>} />
         </>
       ) : (
-        <Route path="/" element={<AppShell><AthleteHome /></AppShell>} />
+        <>
+          <Route path="/" element={<AppShell><WeekPage /></AppShell>} />
+          <Route path="/month" element={<AppShell><MonthPage /></AppShell>} />
+          <Route path="/events/new" element={<AppShell><EventFormPage /></AppShell>} />
+          <Route path="/events/:id" element={<AppShell><EventFormPage /></AppShell>} />
+        </>
       )}
       <Route path="*" element={<Navigate to={home} replace />} />
     </Routes>
@@ -83,7 +83,9 @@ function AuthedRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthedRoutes />
+      <CopyProvider>
+        <AuthedRoutes />
+      </CopyProvider>
     </BrowserRouter>
   )
 }
