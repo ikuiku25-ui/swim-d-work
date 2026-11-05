@@ -236,6 +236,11 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
+# メール文面（ローカル用。本番は Supabase 管理画面の Authentication → Emails に同じ内容を設定する）
+[auth.email.template.magic_link]
+subject = "SWIM D-work ログインコード"
+content_path = "./supabase/templates/magic_link.html"
+
 # Use a production-ready SMTP server
 # [auth.email.smtp]
 # enabled = true
@@ -428,4 +433,10 @@ enabled = true
 verify_jwt = false
 
 [functions.nightly-check]
+verify_jwt = false
+
+[functions.invite-athlete]
+verify_jwt = false
+
+[functions.set-athlete-status]
 verify_jwt = false

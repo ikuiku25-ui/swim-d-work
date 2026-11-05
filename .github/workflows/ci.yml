@@ -3,7 +3,6 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
 
 jobs:
   web:
@@ -31,3 +30,17 @@ jobs:
           deno-version: v2.x
       - run: deno check */index.ts
       - run: deno task test
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: ローカルのデータベースを起動（マイグレーションと seed を適用）
+        run: npx supabase db start
+      - name: RLS とトリガーのテスト（pgTAP）
+        run: npx supabase test db

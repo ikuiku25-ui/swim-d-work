@@ -27,7 +27,7 @@ src/
   sw.ts             Service Worker（プッシュ受信）
 supabase/
   migrations/       スキーマ・RLS・トリガー（変更は必ずマイグレーションで行う）
-  functions/        Edge Functions（invite-athlete, push-send, nightly-check, notify-menu）
+  functions/        Edge Functions（invite-athlete, set-athlete-status, nightly-check, push-send, notify-menu）
   tests/            pgTAP テスト
   seed.sql          ローカル開発用のコーチ1人・選手2人
 workers/
@@ -79,6 +79,8 @@ npx supabase db reset     # マイグレーションと seed の再適用
 npx supabase test db      # pgTAP（RLS テスト）
 ```
 
+- ログインはメールで届くコードを入力する方式（リンクは使わない。理由は `docs/design.md` 5章）
+- ローカルのメールは Mailpit（http://127.0.0.1:54324）で見る。seed のユーザーは coach@example.com、athlete-a@example.com、athlete-b@example.com
 - ローカルの環境変数は `.env.local`（フロントエンド）と `supabase/functions/.env`（Edge Functions）。見本は各 `.env.example`
 - Edge Functions は `supabase/functions/deno.json` の設定で動く（npm の node_modules は使わない）
 
@@ -95,4 +97,6 @@ npx supabase test db      # pgTAP（RLS テスト）
 ## Claude Code のクラウド環境での注意
 
 - Docker は止まっていることがある。`dockerd` を起動してから `npx supabase start` を実行する。イメージの取得はリトライで通ることがある
-- ローカルの Edge Runtime（Docker 内）はプロキシの証明書を信頼しないため、npm のパッケージを取得できない。Edge Functions の確認は、ホスト側で `DENO_CERT=/root/.ccr/ca-bundle.crt npx deno@2 ...` を使う
+- ローカルの Edge Runtime（Docker 内）はプロキシの証明書を信頼しないため、npm のパッケージを取得できない。Edge Functions はホスト側の Deno で動かす
+  - `DENO_CERT=/root/.ccr/ca-bundle.crt npx deno@2 run -A --config supabase/functions/deno.json scripts/dev-functions.ts`（全関数を http://127.0.0.1:54329/functions/v1 にまとめる）
+  - `.env.local` に `VITE_FUNCTIONS_URL=http://127.0.0.1:54329/functions/v1` を書くと、画面からもそちらを呼ぶ

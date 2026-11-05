@@ -18,6 +18,14 @@ export const env = {
   vapidPublicKey: import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined,
 }
 
+/**
+ * Edge Functions の URL。通常は Supabase の URL + /functions/v1。
+ * ローカルで Edge Runtime を使えない環境では VITE_FUNCTIONS_URL で差し替える（scripts/dev-functions.ts）。
+ */
+export const functionsUrl =
+  (import.meta.env.VITE_FUNCTIONS_URL as string | undefined)?.replace(/\/$/, '') ??
+  (env.supabaseUrl ? `${env.supabaseUrl}/functions/v1` : undefined)
+
 export const missingEnv = Object.entries(env)
   .filter(([, v]) => !v)
   .map(([k]) => k)
