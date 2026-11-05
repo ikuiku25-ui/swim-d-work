@@ -428,8 +428,14 @@ enabled = true
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
 
 # --- Edge Functions ---
-# 呼び出し元の認証は各関数の中で行う（push-test は購読情報、nightly-check は CRON_SECRET）
-[functions.push-test]
+# 呼び出し元の認証は各関数の中で行う（ログイン中の利用者のトークン、nightly-check は CRON_SECRET）
+[functions.flush-notifications]
+verify_jwt = false
+
+[functions.notify-menu]
+verify_jwt = false
+
+[functions.push-self-test]
 verify_jwt = false
 
 [functions.nightly-check]

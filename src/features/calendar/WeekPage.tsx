@@ -6,6 +6,7 @@ import { EventChip } from './EventChip'
 import { useEventsInRange } from './useEvents'
 import { useSwipe } from './useSwipe'
 import { ViewSwitch } from './ViewSwitch'
+import { PushOnboarding } from '../settings/PushOnboarding'
 
 function dayLabelClass(d: DateStr, today: DateStr): string {
   if (d === today) return 'text-sky-700'
@@ -34,6 +35,7 @@ export function WeekPage() {
     <div className="space-y-3" {...swipe}>
       <ViewSwitch />
       <CopyBanner />
+      <PushOnboarding />
       <div className="flex items-center justify-between">
         <button type="button" onClick={() => go(-7)} className="rounded-lg px-3 py-2 text-sky-700" aria-label="前の7日">
           ◀ 前の7日

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { NavLink } from 'react-router'
+import { Link, NavLink } from 'react-router'
 import { useAuth } from '../features/auth/AuthProvider'
 
 type NavItem = { to: string; label: string }
@@ -22,6 +22,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <span className="font-bold text-sky-900">SWIM D-work</span>
         <div className="flex items-center gap-3 text-sm">
           <span className="text-slate-600">{profile?.display_name}</span>
+          <Link to="/settings" className="text-sky-700">
+            設定
+          </Link>
           <button type="button" className="text-sky-700" onClick={() => signOut()}>
             ログアウト
           </button>

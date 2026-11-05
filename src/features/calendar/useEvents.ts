@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { DateStr } from '../../lib/date'
 import { EVENT_COLUMNS, type CalendarEvent, type EventInput } from '../../lib/events'
+import { flushNotifications } from '../../lib/push'
 import { supabase } from '../../lib/supabase'
 
 /** 期間内の予定（RLS により、選手は自分の分、コーチは全員分が返る） */
@@ -36,8 +37,12 @@ export function useEvent(id: string | undefined) {
 
 function useInvalidateEvents() {
   const qc = useQueryClient()
-  // 画面に出ていない一覧（週⇔月の切り替え先）も読み直す
-  return () => qc.invalidateQueries({ queryKey: ['events'], refetchType: 'all' })
+  return () => {
+    // 予定の変更でコーチ宛ての通知がたまっていれば送る（条件は DB のトリガーが判定済み）
+    flushNotifications()
+    // 画面に出ていない一覧（週⇔月の切り替え先）も読み直す
+    return qc.invalidateQueries({ queryKey: ['events'], refetchType: 'all' })
+  }
 }
 
 export function useCreateEvents() {
@@ -70,6 +75,7 @@ export function useDeleteEvent() {
       if (error) throw error
     },
     onSuccess: (_data, id) => {
+      flushNotifications()
       // 削除した予定そのものは読み直さない（読み直すと「見つかりません」に切り替わってしまう）
       qc.removeQueries({ queryKey: ['events', 'one', id] })
       return qc.invalidateQueries({ queryKey: ['events', 'range'], refetchType: 'all' })

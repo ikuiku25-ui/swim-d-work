@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { MenuBlocks } from '../../lib/menu'
-import { supabase } from '../../lib/supabase'
+import { callFunction, supabase } from '../../lib/supabase'
 
 export type MenuRow = { event_id: string; blocks: MenuBlocks; updated_at: string; notified_at: string | null }
 
@@ -77,6 +77,16 @@ export function useAcknowledgeChange() {
       const { error } = await supabase.rpc('acknowledge_event_change', { p_event_id: eventId })
       if (error) throw error
     },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['events'], refetchType: 'all' }),
+  })
+}
+
+/** 選んだ枠のメニューを選手に知らせる（選手ごとに1通にまとめる） */
+export function useNotifyMenus() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (eventIds: string[]) =>
+      callFunction<{ athletes: { name: string; delivered: number }[] }>('notify-menu', { event_ids: eventIds }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['events'], refetchType: 'all' }),
   })
 }

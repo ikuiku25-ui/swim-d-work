@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cancelReasonSchema, describeChange, eventInputSchema, groupByDate, menuState, pasteRows, toTemplate } from './events'
+import { cancelReasonSchema, describeChange, eventInputSchema, groupByDate, isUnnotified, menuState, notifyResultText, pasteRows, toTemplate } from './events'
 
 const valid = { kind: 'dryland', date: '2026-11-10', start_time: '16:00', place: '学校', duration_min: '40' }
 
@@ -78,5 +78,19 @@ describe('menuState', () => {
     expect(menuState({ menu, record: { started: false, completed_at: null } })).toBe('set')
     expect(menuState({ menu, record: { started: true, completed_at: null } })).toBe('in_progress')
     expect(menuState({ menu, record: { started: true, completed_at: '2026-11-10T08:00:00Z' } })).toBe('done')
+  })
+})
+
+describe('isUnnotified / notifyResultText', () => {
+  it('初回未通知・通知後の変更は未通知', () => {
+    expect(isUnnotified({ menu: null })).toBe(false)
+    expect(isUnnotified({ menu: { event_id: 'x', updated_at: '2026-11-10T01:00:00Z', notified_at: null } })).toBe(true)
+    expect(isUnnotified({ menu: { event_id: 'x', updated_at: '2026-11-10T01:00:00Z', notified_at: '2026-11-10T01:00:00Z' } })).toBe(false)
+    expect(isUnnotified({ menu: { event_id: 'x', updated_at: '2026-11-10T02:00:00Z', notified_at: '2026-11-10T01:00:00Z' } })).toBe(true)
+  })
+  it('届いた選手と、通知の設定がない選手を分けて伝える', () => {
+    expect(notifyResultText([{ name: 'A', delivered: 1 }, { name: 'B', delivered: 0 }])).toBe(
+      'Aさんに通知しました。Bさんは通知の設定がまだのため、端末には届いていません（アプリを開けばメニューは見えます）。',
+    )
   })
 })

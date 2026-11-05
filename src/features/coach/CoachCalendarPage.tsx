@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { addDays, daysFrom, formatDuration, formatMonthDay, formatTime, todayJst } from '../../lib/date'
-import { describeChange, groupByDate, kindLabel, menuState, menuStateLabel, type CalendarEvent } from '../../lib/events'
+import { describeChange, groupByDate, isUnnotified, kindLabel, menuState, menuStateLabel, type CalendarEvent } from '../../lib/events'
 import type { AthleteListItem } from '../../lib/types'
 import { useAthletes } from '../athletes/useAthletes'
 import { useEventsInRange } from '../calendar/useEvents'
 import { useSwipe } from '../calendar/useSwipe'
+import { PushOnboarding } from '../settings/PushOnboarding'
 
 /** コーチのホーム：全選手の予定を選手別に色分け。未設定・変更あり・中止を強調 */
 export function CoachCalendarPage() {
@@ -37,6 +38,7 @@ export function CoachCalendarPage() {
   return (
     <div className="space-y-3" {...swipe}>
       <h1 className="text-xl font-bold">全員カレンダー</h1>
+      <PushOnboarding />
 
       <div className="flex flex-wrap gap-2">
         <FilterChip active={!filter} onClick={() => setFilter(null)} label="全員" />
@@ -146,6 +148,9 @@ function CoachEventRow({ event, athlete }: { event: CalendarEvent; athlete?: Ath
         <span className="ml-auto flex gap-1">
           {canceled && <Badge className="bg-slate-200 text-slate-600">中止</Badge>}
           {event.changed_from && <Badge className="bg-violet-100 text-violet-800 ring-1 ring-violet-300">変更あり</Badge>}
+          {isDryland && !canceled && menuState(event) === 'set' && isUnnotified(event) && (
+            <Badge className="bg-amber-100 text-amber-800 ring-1 ring-amber-300">未通知</Badge>
+          )}
           {isDryland && !canceled && <Badge className={coachMarkStyle[menuState(event)]}>{menuStateLabel[menuState(event)]}</Badge>}
         </span>
       </div>

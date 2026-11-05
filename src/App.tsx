@@ -10,12 +10,12 @@ import { MonthPage } from './features/calendar/MonthPage'
 import { WeekPage } from './features/calendar/WeekPage'
 import { CoachCalendarPage } from './features/coach/CoachCalendarPage'
 import { CoachEventPage } from './features/coach/CoachEventPage'
-import { PushTestPage } from './features/dev/PushTestPage'
 import { ReferenceDetailPage } from './features/library/ReferenceDetailPage'
 import { ReferencesPage } from './features/library/ReferencesPage'
 import { TemplateEditPage } from './features/library/TemplateEditPage'
 import { TemplatesPage } from './features/library/TemplatesPage'
 import { RecordPage } from './features/record/RecordPage'
+import { SettingsPage } from './features/settings/SettingsPage'
 
 function FullScreenMessage({ children }: { children: ReactNode }) {
   return (
@@ -35,7 +35,6 @@ function AuthedRoutes() {
   if (!session) {
     return (
       <Routes>
-        <Route path="/dev/push" element={<PushTestPage />} />
         <Route path="*" element={<LoginPage />} />
       </Routes>
     )
@@ -58,8 +57,7 @@ function AuthedRoutes() {
   const home = profile.role === 'coach' ? '/coach' : '/'
   return (
     <Routes>
-      {/* フェーズ0の動作確認用。フェーズ6で通知の本実装に置き換えたら削除する */}
-      <Route path="/dev/push" element={<PushTestPage />} />
+      <Route path="/settings" element={<AppShell><SettingsPage /></AppShell>} />
       {profile.role === 'coach' ? (
         <>
           <Route path="/coach" element={<AppShell><CoachCalendarPage /></AppShell>} />

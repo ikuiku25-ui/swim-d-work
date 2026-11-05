@@ -123,3 +123,20 @@ export function describeChange(
   if (from.duration_min !== to.duration_min) parts.push(`${from.duration_min}分 → ${to.duration_min}分`)
   return parts.join('、')
 }
+
+/** メニューを保存したあと、まだ選手に知らせていないか（初回未通知、または通知後に内容を変えた） */
+export function isUnnotified(e: Pick<CalendarEvent, 'menu'>): boolean {
+  if (!e.menu) return false
+  return !e.menu.notified_at || e.menu.updated_at > e.menu.notified_at
+}
+
+/** notify-menu の結果を、コーチ向けの文にする */
+export function notifyResultText(athletes: { name: string; delivered: number }[]): string {
+  if (athletes.length === 0) return '通知する対象がありませんでした。'
+  const ok = athletes.filter((a) => a.delivered > 0).map((a) => `${a.name}さん`)
+  const none = athletes.filter((a) => a.delivered === 0).map((a) => `${a.name}さん`)
+  const parts: string[] = []
+  if (ok.length) parts.push(`${ok.join('、')}に通知しました。`)
+  if (none.length) parts.push(`${none.join('、')}は通知の設定がまだのため、端末には届いていません（アプリを開けばメニューは見えます）。`)
+  return parts.join('')
+}

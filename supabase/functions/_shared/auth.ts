@@ -37,3 +37,22 @@ export async function requireCoach(req: Request, admin: SupabaseClient): Promise
   }
   return { id: data.user.id }
 }
+
+/** ログイン中の有効な利用者（役割は問わない）でなければ HttpError を投げる */
+export async function requireActiveUser(
+  req: Request,
+  admin: SupabaseClient,
+): Promise<{ id: string; role: 'coach' | 'athlete' }> {
+  const token = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '')
+  if (!token) throw new HttpError(401, 'ログインが必要です')
+  const { data, error } = await admin.auth.getUser(token)
+  if (error || !data.user) throw new HttpError(401, 'ログインが必要です')
+  const { data: profile, error: pErr } = await admin
+    .from('profiles')
+    .select('role, is_active')
+    .eq('id', data.user.id)
+    .maybeSingle()
+  if (pErr) throw new HttpError(500, 'プロフィールを確認できませんでした')
+  if (!profile || !profile.is_active) throw new HttpError(403, 'このアカウントは利用できません')
+  return { id: data.user.id, role: profile.role }
+}

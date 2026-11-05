@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { addDays, formatDuration, formatMonthDay, formatTime, todayJst } from '../../lib/date'
-import { describeChange, kindLabel, type CalendarEvent } from '../../lib/events'
+import { describeChange, isUnnotified, kindLabel, notifyResultText, type CalendarEvent } from '../../lib/events'
 import { validateMenu, type MenuBlocks } from '../../lib/menu'
 import { useAthletes } from '../athletes/useAthletes'
 import { saveErrorMessage, useEvent, useEventsInRange } from '../calendar/useEvents'
@@ -9,7 +9,7 @@ import { cloneWithNewIds } from '../../lib/library'
 import { TemplatePicker } from '../library/TemplatePicker'
 import { useSaveTemplate } from '../library/useLibrary'
 import { MenuEditor } from '../menu/MenuEditor'
-import { useAcknowledgeChange, useDeleteMenu, useMenu, useSaveMenus } from '../menu/useMenu'
+import { useAcknowledgeChange, useDeleteMenu, useMenu, useNotifyMenus, useSaveMenus } from '../menu/useMenu'
 import { OutcomeView } from '../record/OutcomeView'
 import { useRecord } from '../record/useRecord'
 import type { RecordRow } from '../../lib/record'
@@ -63,9 +63,11 @@ function Editor({
   const [picking, setPicking] = useState(false)
   const saveTemplate = useSaveTemplate()
   const save = useSaveMenus()
+  const notify = useNotifyMenus()
   const remove = useDeleteMenu()
   const ack = useAcknowledgeChange()
   const canceled = event.status === 'canceled'
+  const busy = save.isPending || notify.isPending
   // 選手が記録を始めたら、メニューは変更できない（確認画面を出す）
   const locked = hasMenu && !!record?.started
   const editable = !canceled && !locked
@@ -76,19 +78,27 @@ function Editor({
     setMessage(null)
   }
 
-  const onSave = () => {
+  const onSave = async (withNotify: boolean) => {
     const v = validateMenu(blocks)
     if (!v.ok) return setMessage({ ok: false, text: v.error })
-    save.mutate(
-      { eventIds: [event.id], blocks: v.blocks },
-      {
-        onSuccess: () => {
-          setDirty(false)
-          setMessage({ ok: true, text: 'メニューを保存しました。' })
-        },
-        onError: (e) => setMessage({ ok: false, text: saveErrorMessage(e) }),
-      },
-    )
+    try {
+      await save.mutateAsync({ eventIds: [event.id], blocks: v.blocks })
+      setDirty(false)
+      if (!withNotify) return setMessage({ ok: true, text: 'メニューを保存しました（選手にはまだ通知していません）。' })
+      const r = await notify.mutateAsync([event.id])
+      setMessage({ ok: true, text: `メニューを保存しました。${notifyResultText(r.athletes)}` })
+    } catch (e) {
+      setMessage({ ok: false, text: saveErrorMessage(e) })
+    }
+  }
+
+  const onNotifyOnly = async () => {
+    try {
+      const r = await notify.mutateAsync([event.id])
+      setMessage({ ok: true, text: notifyResultText(r.athletes) })
+    } catch (e) {
+      setMessage({ ok: false, text: saveErrorMessage(e) })
+    }
   }
 
   const onDelete = async () => {
@@ -228,14 +238,41 @@ function Editor({
 
       {editable && (
         <div className="fixed inset-x-0 bottom-14 z-10 mx-auto max-w-md px-4 pb-[env(safe-area-inset-bottom)]">
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={save.isPending || (!dirty && hasMenu) || blocks.length === 0}
-            className="w-full rounded-lg bg-sky-700 px-4 py-3 font-medium text-white shadow-lg disabled:opacity-40"
-          >
-            {save.isPending ? '保存中…' : dirty || !hasMenu ? 'メニューを保存' : '保存済み'}
-          </button>
+          {!dirty && hasMenu ? (
+            isUnnotified(event) ? (
+              <button
+                type="button"
+                onClick={onNotifyOnly}
+                disabled={notify.isPending}
+                className="w-full rounded-lg bg-amber-600 px-4 py-3 font-medium text-white shadow-lg disabled:opacity-40"
+              >
+                {notify.isPending ? '通知中…' : '保存済み・選手に通知する'}
+              </button>
+            ) : (
+              <p className="rounded-lg bg-white/90 px-4 py-3 text-center text-sm text-slate-600 shadow-lg ring-1 ring-slate-200">
+                保存済み・選手に通知済み
+              </p>
+            )
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => onSave(false)}
+                disabled={busy || blocks.length === 0}
+                className="rounded-lg bg-white px-3 py-3 font-medium text-sky-700 shadow-lg ring-1 ring-sky-300 disabled:opacity-40"
+              >
+                保存
+              </button>
+              <button
+                type="button"
+                onClick={() => onSave(true)}
+                disabled={busy || blocks.length === 0}
+                className="rounded-lg bg-sky-700 px-3 py-3 font-medium text-white shadow-lg disabled:opacity-40"
+              >
+                {busy ? '保存中…' : '保存して選手に通知'}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -246,10 +283,10 @@ function Editor({
           blocks={pasting}
           currentEventId={event.id}
           onClose={() => setPasting(null)}
-          onDone={(n) => {
+          onDone={(n, notifyText) => {
             setPasting(null)
             setDirty(false)
-            setMessage({ ok: true, text: `この枠を保存し、ほかの${n}件の枠にもメニューを入れました。` })
+            setMessage({ ok: true, text: `この枠を保存し、ほかの${n}件の枠にもメニューを入れました。${notifyText}` })
           }}
         />
       )}
@@ -267,7 +304,7 @@ function PasteDialog({
   blocks: MenuBlocks
   currentEventId: string
   onClose: () => void
-  onDone: (count: number) => void
+  onDone: (count: number, notifyText: string) => void
 }) {
   const today = todayJst()
   const events = useEventsInRange(today, addDays(today, 27))
@@ -275,7 +312,9 @@ function PasteDialog({
   const byId = new Map((athletes.data ?? []).map((a) => [a.id, a]))
   const [picked, setPicked] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [withNotify, setWithNotify] = useState(true)
   const save = useSaveMenus()
+  const notify = useNotifyMenus()
 
   const candidates = (events.data ?? []).filter(
     (e) =>
@@ -289,11 +328,16 @@ function PasteDialog({
   const overwriteCount = candidates.filter((e) => picked.includes(e.id) && e.menu).length
 
   // 編集中の元の枠も同じ内容で保存する（貼り付け先だけ保存されて元の枠が古いまま、を防ぐ）
-  const submit = () =>
-    save.mutate(
-      { eventIds: [currentEventId, ...picked], blocks },
-      { onSuccess: () => onDone(picked.length), onError: (e) => setError(saveErrorMessage(e)) },
-    )
+  const submit = async () => {
+    const all = [currentEventId, ...picked]
+    try {
+      await save.mutateAsync({ eventIds: all, blocks })
+      const r = withNotify ? await notify.mutateAsync(all) : null
+      onDone(picked.length, r ? notifyResultText(r.athletes) : '選手にはまだ通知していません。')
+    } catch (e) {
+      setError(saveErrorMessage(e))
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-20 flex items-end bg-black/40" role="dialog" aria-modal="true" aria-label="メニューの一括貼り付け">
@@ -325,6 +369,10 @@ function PasteDialog({
         {overwriteCount > 0 && (
           <p className="mt-2 text-sm text-amber-800">設定済みの {overwriteCount}件 は、今のメニューで上書きされます。</p>
         )}
+        <label className="mt-2 flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={withNotify} onChange={(e) => setWithNotify(e.target.checked)} className="size-5" />
+          選手に通知する（選手ごとに1通にまとめます）
+        </label>
         {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
         <div className="mt-3 flex gap-2">
           <button type="button" onClick={onClose} className="flex-1 rounded-lg px-4 py-3 text-slate-700 ring-1 ring-slate-300">
@@ -333,10 +381,10 @@ function PasteDialog({
           <button
             type="button"
             onClick={submit}
-            disabled={picked.length === 0 || save.isPending}
+            disabled={picked.length === 0 || save.isPending || notify.isPending}
             className="flex-1 rounded-lg bg-sky-700 px-4 py-3 font-medium text-white disabled:opacity-40"
           >
-            {save.isPending ? '保存中…' : `${picked.length}件に入れる`}
+            {save.isPending || notify.isPending ? '保存中…' : `${picked.length}件に入れる`}
           </button>
         </div>
       </div>

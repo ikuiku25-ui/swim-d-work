@@ -38,7 +38,7 @@ jobs:
             VAPID_SUBJECT="${{ vars.VAPID_SUBJECT }}" \
             CRON_SECRET="${{ secrets.CRON_SECRET }}"
       - name: Edge Function をデプロイ
-        run: npx supabase functions deploy --use-api --yes
+        run: npx supabase functions deploy --use-api --prune --yes
 
   web:
     if: vars.VITE_SUPABASE_URL != ''

@@ -11,7 +11,7 @@
 費用ゼロで運用することが前提。有料プランや有料サービスが必要になる変更は、実装前にユーザーに相談する。
 
 - フロントエンド：Vite + React + TypeScript、vite-plugin-pwa（injectManifest）、Tailwind CSS、TanStack Query、zod
-- バックエンド：Supabase Free（Postgres、Auth、Edge Functions、pg_net、Vault）
+- バックエンド：Supabase Free（Postgres、Auth、Edge Functions）
 - ホスティング：Cloudflare Pages
 - 定期実行：Cloudflare Workers の Cron Triggers（22時チェック。毎日の呼び出しで Supabase の一時停止も防ぐ）
 - メール：Gmail SMTP（Supabase Auth の独自 SMTP として設定）
@@ -27,7 +27,7 @@ src/
   sw.ts             Service Worker（プッシュ受信）
 supabase/
   migrations/       スキーマ・RLS・トリガー（変更は必ずマイグレーションで行う）
-  functions/        Edge Functions（invite-athlete, set-athlete-status, nightly-check, push-send, notify-menu）
+  functions/        Edge Functions（invite-athlete, set-athlete-status, flush-notifications, notify-menu, push-self-test, nightly-check）
   tests/            pgTAP テスト
   seed.sql          ローカル開発用のコーチ1人・選手2人
 workers/
@@ -55,7 +55,8 @@ docs/
 - メニューが入った枠は削除できず、中止だけできる
 
 ### 通知
-- コーチ宛ての通知は `events` のトリガーから自動で送る。1回の操作で送るのは最大1通
+- コーチ宛ての通知は、`events` のトリガーが条件を判定して送信待ち（`notifications`）に入れ、`flush-notifications` が宛先ごとに1通にまとめて送る。選手のアプリは予定を保存したら `flushNotifications()` を呼ぶ
+- DB から Edge Function を直接呼ばない（DB に秘密の鍵を置かない）
 - 選手宛ての通知は、コーチが「選手に通知」ボタンを押したときだけ送る。選手ごとに1通にまとめる
 - 対象はドライランド枠だけ（水中練習と試合は対象外）
 
@@ -90,13 +91,10 @@ npx supabase test db      # pgTAP（RLS テスト）
 - 必要な Secrets と Variables、アカウントの準備は `docs/setup.md` を参照
 - 作業はフェーズごとのブランチで行い、ユーザーの確認後に `main` に取り込む
 
-## 一時的なもの（削除予定）
-
-- `/dev/push` 画面と Edge Function `push-test`：フェーズ0の通知確認用。フェーズ6で本番の通知を実装したら削除する
-
 ## Claude Code のクラウド環境での注意
 
 - Docker は止まっていることがある。`dockerd` を起動してから `npx supabase start` を実行する。イメージの取得はリトライで通ることがある
 - ローカルの Edge Runtime（Docker 内）はプロキシの証明書を信頼しないため、npm のパッケージを取得できない。Edge Functions はホスト側の Deno で動かす
   - `DENO_CERT=/root/.ccr/ca-bundle.crt npx deno@2 run -A --config supabase/functions/deno.json scripts/dev-functions.ts`（全関数を http://127.0.0.1:54329/functions/v1 にまとめる）
   - `.env.local` に `VITE_FUNCTIONS_URL=http://127.0.0.1:54329/functions/v1` を書くと、画面からもそちらを呼ぶ
+- ヘッドレスの Chromium にはプッシュの送信先がないため、通知の確認は「端末の代わりの受け口」（`supabase/functions/_shared/testdata` の自己署名証明書で立てた HTTPS サーバー）を購読として登録し、届いた通知を `http_ece` で復号して行う。このとき dev-functions は `NODE_TLS_REJECT_UNAUTHORIZED=0` で起動する（テスト時だけ）
