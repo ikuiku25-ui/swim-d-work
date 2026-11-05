@@ -159,17 +159,17 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
         </fieldset>
 
         <div className="grid grid-cols-2 gap-3">
-          <label className="block text-sm text-slate-600">
+          <label className="block min-w-0 text-sm text-slate-600">
             日付
             <input
               type="date"
               required
               value={values.date}
               onChange={(e) => set('date', e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-base text-slate-900"
+              className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2 py-2 text-base text-slate-900"
             />
           </label>
-          <label className="block text-sm text-slate-600">
+          <label className="block min-w-0 text-sm text-slate-600">
             開始時刻
             <input
               type="time"
@@ -177,7 +177,7 @@ function EventForm({ event }: { event: CalendarEvent | null }) {
               step={300}
               value={values.start_time}
               onChange={(e) => set('start_time', e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-2 text-base text-slate-900"
+              className="mt-1 w-full min-w-0 rounded-lg border border-slate-300 bg-white px-2 py-2 text-base text-slate-900"
             />
           </label>
         </div>
