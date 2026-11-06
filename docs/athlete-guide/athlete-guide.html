@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>SWIM D-work 選手向け 使い方ガイド</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+  :root { --ink: #0f172a; --sub: #475569; --line: #e2e8f0; --brand: #0b5fa5; --brand-soft: #e0f2fe; --accent: #ea580c; --ok: #059669; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'IPAPGothic', 'IPAGothic', 'Hiragino Sans', sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.7; }
+  h1, h2, h3 { line-height: 1.35; margin: 0; }
+  .cover { height: 263mm; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; page-break-after: always; }
+  .cover .logo { width: 28mm; height: 28mm; border-radius: 6mm; }
+  .cover h1 { font-size: 30pt; color: var(--brand); margin-top: 8mm; letter-spacing: 0.02em; }
+  .cover .lead { font-size: 15pt; margin-top: 3mm; }
+  .cover .what { margin-top: 12mm; padding: 6mm 7mm; background: var(--brand-soft); border-radius: 4mm; font-size: 11.5pt; width: 100%; }
+  .cover .what li { margin: 1.5mm 0; }
+  .cover .url { margin-top: 10mm; font-size: 12pt; }
+  .cover .url b { font-size: 15pt; color: var(--brand); }
+  .toc { margin-top: 10mm; font-size: 11pt; color: var(--sub); }
+  .toc ol { margin: 2mm 0 0; padding-left: 6mm; }
+
+  section.chapter { page-break-before: always; }
+  .chapter > h2 { font-size: 17pt; color: #fff; background: var(--brand); padding: 3mm 5mm; border-radius: 3mm; margin-bottom: 5mm; }
+  .chapter > p.intro { color: var(--sub); margin: 0 0 4mm; }
+  .step { display: grid; grid-template-columns: 1fr 52mm; gap: 6mm; align-items: start; margin-bottom: 6mm; page-break-inside: avoid; }
+  .step.wide { grid-template-columns: 1fr; }
+  .step h3 { font-size: 12.5pt; display: flex; gap: 2.5mm; align-items: center; margin-bottom: 2mm; }
+  .num { display: inline-flex; align-items: center; justify-content: center; min-width: 7mm; height: 7mm; border-radius: 50%; background: var(--brand); color: #fff; font-size: 10pt; font-weight: bold; }
+  .step ul, .step ol { margin: 1mm 0 0; padding-left: 5mm; }
+  .step li { margin: 0.8mm 0; }
+  .phone { width: 52mm; border: 1.4mm solid #1e293b; border-radius: 6mm; overflow: hidden; background: #fff; }
+  .phone img { display: block; width: 100%; }
+  .note { margin-top: 2mm; padding: 2mm 3.5mm; border-left: 1.2mm solid var(--accent); background: #fff7ed; font-size: 9.5pt; border-radius: 0 2mm 2mm 0; }
+  .tip { margin-top: 2mm; padding: 2mm 3.5mm; border-left: 1.2mm solid var(--ok); background: #ecfdf5; font-size: 9.5pt; border-radius: 0 2mm 2mm 0; }
+  .key { display: inline-block; padding: 0 1.8mm; border: 0.3mm solid #94a3b8; border-radius: 1.5mm; background: #f8fafc; font-size: 9.5pt; white-space: nowrap; }
+  .mark { display: inline-block; padding: 0 1.6mm; border-radius: 1mm; font-size: 9pt; white-space: nowrap; }
+  .m-none { color: #b45309; border: 0.3mm solid #fcd34d; }
+  .m-set { color: #047857; border: 0.3mm solid #6ee7b7; }
+  .m-doing { color: #0369a1; border: 0.3mm solid #7dd3fc; }
+  .m-done { color: #fff; background: #059669; }
+  .m-cancel { color: #475569; background: #e2e8f0; }
+  table { border-collapse: collapse; width: 100%; font-size: 9.8pt; margin-top: 2mm; }
+  th, td { border: 0.3mm solid var(--line); padding: 1.8mm 2.5mm; text-align: left; vertical-align: top; }
+  th { background: #f1f5f9; width: 34%; }
+  .faq dt { font-weight: bold; margin-top: 4mm; }
+  .faq dt::before { content: 'Q. '; color: var(--brand); }
+  .faq dd { margin: 1mm 0 0 0; padding-left: 5mm; }
+  .faq dd::before { content: 'A. '; margin-left: -5mm; color: var(--accent); font-weight: bold; }
+  .footer-note { margin-top: 8mm; font-size: 9pt; color: var(--sub); }
+</style>
+</head>
+<body>
+
+<!-- 表紙 -->
+<div class="cover">
+  <img class="logo" src="../../public/pwa-512x512.png" alt="">
+  <h1>SWIM D-work</h1>
+  <p class="lead">選手向け 使い方ガイド</p>
+  <div class="what">
+    <b>このアプリでできること</b>
+    <ul>
+      <li>ドライランド・水中練習・試合の予定を、自分で入れる</li>
+      <li>コーチが入れたドライランドのメニューを見る</li>
+      <li>メニューを見ながら実施して、やった種目をチェックする</li>
+      <li>メニューが入ったら、スマホに通知が届く</li>
+    </ul>
+  </div>
+  <p class="url">アプリの URL：<b>https://swim-d-work.pages.dev</b></p>
+  <div class="toc">
+    もくじ
+    <ol>
+      <li>はじめての準備（最初の1回だけ）</li>
+      <li>予定を入れる</li>
+      <li>予定を変える・中止する・コピーする</li>
+      <li>メニューを見て、実施を記録する</li>
+      <li>通知について</li>
+      <li>困ったときは</li>
+    </ol>
+  </div>
+</div>
+
+<!-- 1. はじめての準備 -->
+<section class="chapter">
+  <h2>1. はじめての準備（最初の1回だけ）</h2>
+  <p class="intro">コーチに招待されると「SWIM D-work ログインコード」というメールが届きます。iPhone で次の順番に進めてください。</p>
+
+  <div class="step wide">
+    <div>
+      <h3><span class="num">1</span>ホーム画面に追加する</h3>
+      <ol>
+        <li>iPhone の <b>Safari</b> で <b>https://swim-d-work.pages.dev</b> を開く</li>
+        <li>画面の下にある共有ボタン（四角から上向きの矢印）を押す</li>
+        <li><span class="key">ホーム画面に追加</span> →  <span class="key">追加</span></li>
+        <li>ホーム画面にできた <b>「D-work」のアイコン</b>から開く</li>
+      </ol>
+      <div class="note">通知を受け取るには、必ずホーム画面のアイコンから開いてください。Safari のままでは通知が届きません（iOS 16.4 以上が必要です）。</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">2</span>メールアドレスを入れる</h3>
+      <ul>
+        <li>コーチに伝えたメールアドレスを入れて <span class="key">ログイン用のコードを送る</span></li>
+        <li>パスワードはありません</li>
+      </ul>
+      <div class="tip">「登録されていないメールアドレスです」と出たら、コーチに招待してもらったアドレスか確認してください。</div>
+    </div>
+    <div class="phone"><img src="img/01-login-email.png" alt="ログイン画面"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">3</span>メールのコードを入れる</h3>
+      <ul>
+        <li>メールに届いた<b>6桁の数字</b>を入れて <span class="key">ログイン</span></li>
+        <li>コードの有効期限は1時間。切れたら <span class="key">コードを再送する</span></li>
+        <li>一度ログインすれば、次からは開くだけで使えます</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/02-login-code.png" alt="コード入力"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">4</span>通知を有効にする</h3>
+      <ul>
+        <li>ログインすると「通知を受け取る準備をしましょう」が出ます</li>
+        <li><span class="key">通知を有効にする</span> → 出てきた確認で <span class="key">許可</span></li>
+        <li>あとからでも、右上の <span class="key">設定</span> からできます</li>
+      </ul>
+      <div class="tip">設定画面の <span class="key">テスト通知を送る</span> で、通知が届くか確かめられます。</div>
+    </div>
+    <div class="phone"><img src="img/03-week-onboarding.png" alt="通知の案内"></div>
+  </div>
+</section>
+
+<!-- 2. 予定を入れる -->
+<section class="chapter">
+  <h2>2. 予定を入れる</h2>
+  <p class="intro">コーチは、あなたが入れた「ドライランド」の予定にメニューを入れます。ドライランドをする日時が決まったら、早めに入れてください。</p>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>カレンダー（週表示）</h3>
+      <ul>
+        <li>アプリを開くと、<b>今日から7日間</b>が表示されます</li>
+        <li>左右にスワイプすると、前後の7日に移動します</li>
+        <li>上の <span class="key">月</span> で1か月の表示に切り替わります</li>
+        <li>色：<span style="color:#ea580c">●</span> ドライランド　<span style="color:#0ea5e9">●</span> 水中練習　<span style="color:#e11d48">●</span> 試合</li>
+      </ul>
+      <table>
+        <tr><th>印</th><th>意味</th></tr>
+        <tr><td><span class="mark m-none">メニュー未設定</span></td><td>コーチのメニューがまだ入っていない</td></tr>
+        <tr><td><span class="mark m-set">メニューあり</span></td><td>メニューが入った。開いて確認しよう</td></tr>
+        <tr><td><span class="mark m-doing">実施中</span></td><td>記録を途中まで入れた</td></tr>
+        <tr><td><span class="mark m-done">実施済み</span></td><td>完了にした</td></tr>
+        <tr><td><span class="mark m-cancel">中止</span></td><td>中止にした予定</td></tr>
+      </table>
+    </div>
+    <div class="phone"><img src="img/04-week.png" alt="週表示"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">2</span>予定を追加する</h3>
+      <ol>
+        <li>その日の <span class="key">＋ 追加</span> を押す</li>
+        <li><b>種類</b>（ドライランド／水中練習／試合）を選ぶ</li>
+        <li><b>日付・開始時刻・場所・時間（分）</b>を入れる。時間は「30分」「40分」などのボタンでも選べます</li>
+        <li>いちばん下のボタンで追加</li>
+      </ol>
+      <div class="tip">1日に何件でも入れられます。朝練と放課後のドライランド、のように分けて入れてください。</div>
+    </div>
+    <div class="phone"><img src="img/05-event-new.png" alt="予定の追加"></div>
+  </div>
+</section>
+
+<!-- 3. 変更・中止・コピー -->
+<section class="chapter">
+  <h2>3. 予定を変える・中止する・コピーする</h2>
+  <p class="intro">カレンダーの予定を押すと、編集画面が開きます。</p>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>同じ予定を何日分も入れる（コピー）</h3>
+      <ol>
+        <li>予定を開いて <span class="key">コピーして他の日に貼り付ける</span></li>
+        <li>月表示になるので、入れたい日を<b>タップして選ぶ</b>（何日でも選べます）</li>
+        <li><span class="key">貼り付け（○日）</span> を押す</li>
+      </ol>
+      <ul>
+        <li>コピーされるのは、種類・時刻・場所・時間だけです（メニューはコピーされません）</li>
+        <li>その日の予定は消えずに、追加されます</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/06-month-paste.png" alt="コピーと貼り付け"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">2</span>変更する・中止する・削除する</h3>
+      <ul>
+        <li><b>変更</b>：日付や時刻を直して <span class="key">変更を保存</span>。メニューが入っている予定を変えると、コーチに知らせが届きます</li>
+        <li><b>中止</b>：<span class="key">中止にする</span> → 理由をひとこと入れる（例：発熱、テスト期間）。中止は <span class="key">中止を取り消す</span> で元に戻せます</li>
+        <li><b>削除</b>：<span class="key">削除する</span>。間違えて入れた予定に使います</li>
+      </ul>
+      <div class="note">コーチのメニューが入った予定は<b>削除できません</b>。行けなくなったら「中止」にしてください。種類（ドライランドなど）も変えられません。</div>
+    </div>
+    <div class="phone"><img src="img/07-cancel.png" alt="中止"></div>
+  </div>
+</section>
+
+<!-- 4. メニューと記録 -->
+<section class="chapter">
+  <h2>4. メニューを見て、実施を記録する</h2>
+  <p class="intro">コーチがメニューを入れると通知が届き、カレンダーの予定に <span class="mark m-set">メニューあり</span> が付きます。</p>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>メニューを見る</h3>
+      <ul>
+        <li>予定を開くと「コーチからのメニュー」が表示されます</li>
+        <li><b>単独</b>：1つの種目を決められたセット数行う</li>
+        <li><b>サーキット</b>：いくつかの種目を順番に行い、それを決められた周回数くり返す</li>
+        <li>実施するときは <span class="key">メニューを実施する（記録）</span></li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/08-event-menu.png" alt="メニュー"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">2</span>やった種目にチェックする</h3>
+      <ul>
+        <li>やった種目の □ にチェックを入れる</li>
+        <li>回数・秒数・負荷は、最初から<b>計画の値</b>が入っています。<b>計画と違ったときだけ</b>数字を書き換えてください（書き換えた欄は黄色になります）</li>
+        <li>セット数や周回数が計画と違ったら、「実施セット数」「実施周回数」を直す（例：3周の予定 → 2周）</li>
+        <li>入力は<b>自動で保存</b>されます（画面の下に「保存しました」）</li>
+      </ul>
+      <div class="tip">途中でアプリを閉じても大丈夫。次に開くと続きから入れられます。</div>
+    </div>
+    <div class="phone"><img src="img/09-record.png" alt="記録"></div>
+  </div>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">3</span>メニューにない種目を足す・完了にする</h3>
+      <ul>
+        <li>メニューにない種目もやったときは、いちばん下の「追加分」の <span class="key">＋ 種目を追加</span> で入れる</li>
+        <li>終わったら <span class="key">完了（実施済みにする）</span>。カレンダーに <span class="mark m-done">実施済み</span> が付きます</li>
+        <li>全部の種目にチェックが付いていなくても完了にできます。完了したあとでも直せます</li>
+      </ul>
+      <div class="note">記録を始めると、コーチはそのメニューを変更できなくなります。メニューに変更してほしいところがあれば、記録を始める前にコーチに伝えてください。</div>
+    </div>
+    <div class="phone"><img src="img/09b-record-added.png" alt="追加分と完了"></div>
+  </div>
+</section>
+
+<!-- 5. 通知 -->
+<section class="chapter">
+  <h2>5. 通知について</h2>
+
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>届く通知</h3>
+      <table>
+        <tr><th>通知</th><th>届くとき</th></tr>
+        <tr><td>「11/10（火）のドライランドにメニューが入りました」</td><td>コーチがメニューを入れて通知したとき</td></tr>
+        <tr><td>「11/10（火）のメニューが変更されました」</td><td>コーチがメニューを直して通知したとき</td></tr>
+        <tr><td>「11/10（火）ほか2日のメニューが入りました」</td><td>何日分かまとめて入ったとき（1通にまとまります）</td></tr>
+      </table>
+      <ul style="margin-top:3mm">
+        <li>通知を押すと、アプリが開きます</li>
+        <li>通知が来なくても、アプリを開けばメニューは見られます</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/10-settings.png" alt="設定"></div>
+  </div>
+
+  <div class="step wide">
+    <div>
+      <h3><span class="num">2</span>設定画面（右上の「設定」）</h3>
+      <ul>
+        <li><span class="key">通知を有効にする</span>：この iPhone で通知を受け取る</li>
+        <li><span class="key">テスト通知を送る</span>：通知が届くか確かめる</li>
+        <li><span class="key">この端末の通知をやめる</span>：この iPhone では通知を受け取らない</li>
+        <li><span class="key">← カレンダー</span> または左上の「SWIM D-work」でカレンダーに戻る</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 6. 困ったとき -->
+<section class="chapter">
+  <h2>6. 困ったときは</h2>
+  <dl class="faq">
+    <dt>ログインコードのメールが届かない</dt>
+    <dd>迷惑メールフォルダを確認してください。それでもなければ、少し待ってから <span class="key">コードを再送する</span> を押してください。何度も続けて押すと、しばらく送れなくなります。</dd>
+
+    <dt>「コードが正しくないか、有効期限が切れています」と出る</dt>
+    <dd>コードの有効期限は1時間です。<span class="key">コードを再送する</span> で新しいコードを受け取り、いちばん新しいメールのコードを入れてください。</dd>
+
+    <dt>通知が届かない</dt>
+    <dd>
+      ① ホーム画面の「D-work」から開いているか（Safari のままでは届きません）<br>
+      ② iPhone の「設定」→「通知」→「D-work」で「通知を許可」がオンか<br>
+      ③ 集中モード（おやすみモードなど）がオンになっていないか<br>
+      ④ アプリの「設定」→ <span class="key">テスト通知を送る</span> で届くか。届かなければ <span class="key">通知を有効にする</span> を押し直す
+    </dd>
+
+    <dt>画面が古いまま・おかしい</dt>
+    <dd>アプリを完全に閉じて（画面の下から上にスワイプして、D-work を上に払う）、ホーム画面から開き直してください。2回くり返すと新しい版になります。</dd>
+
+    <dt>機種変更した・別のスマホでも使いたい</dt>
+    <dd>新しいスマホで「1. はじめての準備」をもう一度行ってください。ログインはメールアドレスとコードだけでできます。通知は、その端末で <span class="key">通知を有効にする</span> を押し直してください。</dd>
+
+    <dt>「このアカウントは利用できません」「停止されています」と出る</dt>
+    <dd>コーチに確認してください。</dd>
+
+    <dt>予定を削除できない</dt>
+    <dd>コーチのメニューが入った予定は削除できません。「中止にする」を使ってください。</dd>
+  </dl>
+
+  <p class="footer-note">あなたが入れた予定と記録は、あなたとコーチだけが見られます。ほかの選手には見えません。<br>わからないことがあれば、コーチに聞いてください。</p>
+</section>
+
+</body>
+</html>
