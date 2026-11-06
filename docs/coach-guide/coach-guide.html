@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>SWIM D-work コーチ向け 使い方ガイド</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+  :root { --ink: #0f172a; --sub: #475569; --line: #e2e8f0; --brand: #0b5fa5; --brand-soft: #e0f2fe; --accent: #ea580c; --ok: #059669; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'IPAPGothic', 'IPAGothic', 'Hiragino Sans', sans-serif; color: var(--ink); font-size: 10.5pt; line-height: 1.7; }
+  h1, h2, h3 { line-height: 1.35; margin: 0; }
+  .cover { height: 263mm; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; page-break-after: always; }
+  .cover .logo { width: 28mm; height: 28mm; border-radius: 6mm; }
+  .cover h1 { font-size: 30pt; color: var(--brand); margin-top: 8mm; letter-spacing: 0.02em; }
+  .cover .lead { font-size: 15pt; margin-top: 3mm; }
+  .cover .what { margin-top: 12mm; padding: 6mm 7mm; background: var(--brand-soft); border-radius: 4mm; font-size: 11.5pt; width: 100%; }
+  .cover .what li { margin: 1.5mm 0; }
+  .cover .url { margin-top: 10mm; font-size: 12pt; }
+  .cover .url b { font-size: 15pt; color: var(--brand); }
+  .toc { margin-top: 10mm; font-size: 11pt; color: var(--sub); }
+  .toc ol { margin: 2mm 0 0; padding-left: 6mm; }
+
+  section.chapter { page-break-before: always; }
+  .chapter > h2 { font-size: 17pt; color: #fff; background: var(--brand); padding: 3mm 5mm; border-radius: 3mm; margin-bottom: 5mm; }
+  .chapter > p.intro { color: var(--sub); margin: 0 0 4mm; }
+  .step { display: grid; grid-template-columns: 1fr 52mm; gap: 6mm; align-items: start; margin-bottom: 6mm; page-break-inside: avoid; }
+  .step.wide { grid-template-columns: 1fr; }
+  .step h3 { font-size: 12.5pt; display: flex; gap: 2.5mm; align-items: center; margin-bottom: 2mm; }
+  .num { display: inline-flex; align-items: center; justify-content: center; min-width: 7mm; height: 7mm; border-radius: 50%; background: var(--brand); color: #fff; font-size: 10pt; font-weight: bold; }
+  .step ul, .step ol { margin: 1mm 0 0; padding-left: 5mm; }
+  .step li { margin: 0.8mm 0; }
+  .phone { width: 52mm; border: 1.4mm solid #1e293b; border-radius: 6mm; overflow: hidden; background: #fff; }
+  .phone img { display: block; width: 100%; }
+  .note { margin-top: 2mm; padding: 2mm 3.5mm; border-left: 1.2mm solid var(--accent); background: #fff7ed; font-size: 9.5pt; border-radius: 0 2mm 2mm 0; }
+  .tip { margin-top: 2mm; padding: 2mm 3.5mm; border-left: 1.2mm solid var(--ok); background: #ecfdf5; font-size: 9.5pt; border-radius: 0 2mm 2mm 0; }
+  .key { display: inline-block; padding: 0 1.8mm; border: 0.3mm solid #94a3b8; border-radius: 1.5mm; background: #f8fafc; font-size: 9.5pt; white-space: nowrap; }
+  .m-unset { color:#fff; background:#f59e0b; }
+  .m-unnotified { color:#92400e; background:#fef3c7; border:0.3mm solid #fcd34d; }
+  .m-changed { color:#5b21b6; background:#ede9fe; border:0.3mm solid #c4b5fd; }
+  .mark { display: inline-block; padding: 0 1.6mm; border-radius: 1mm; font-size: 9pt; white-space: nowrap; }
+  .m-none { color: #b45309; border: 0.3mm solid #fcd34d; }
+  .m-set { color: #047857; border: 0.3mm solid #6ee7b7; }
+  .m-doing { color: #0369a1; border: 0.3mm solid #7dd3fc; }
+  .m-done { color: #fff; background: #059669; }
+  .m-cancel { color: #475569; background: #e2e8f0; }
+  table { border-collapse: collapse; width: 100%; font-size: 9.8pt; margin-top: 2mm; }
+  th, td { border: 0.3mm solid var(--line); padding: 1.8mm 2.5mm; text-align: left; vertical-align: top; }
+  th { background: #f1f5f9; width: 34%; }
+  .faq dt { font-weight: bold; margin-top: 4mm; }
+  .faq dt::before { content: 'Q. '; color: var(--brand); }
+  .faq dd { margin: 1mm 0 0 0; padding-left: 5mm; }
+  .faq dd::before { content: 'A. '; margin-left: -5mm; color: var(--accent); font-weight: bold; }
+  .footer-note { margin-top: 8mm; font-size: 9pt; color: var(--sub); }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <img class="logo" src="../../public/pwa-512x512.png" alt="">
+  <h1>SWIM D-work</h1>
+  <p class="lead">コーチ向け 使い方ガイド</p>
+  <div class="what">
+    <b>コーチができること</b>
+    <ul>
+      <li>選手を招待する・停止する・削除する</li>
+      <li>全員の予定をひとつのカレンダーで見る（予定を入れるのは選手）</li>
+      <li>ドライランドの枠にメニューを入れ、選手に通知する</li>
+      <li>選手の実施結果（計画との違い）を確認する</li>
+      <li>参考メニュー帳とテンプレートで、メニュー作りを楽にする</li>
+    </ul>
+  </div>
+  <p class="url">アプリの URL：<b>https://swim-d-work.pages.dev</b></p>
+  <div class="toc">
+    もくじ
+    <ol>
+      <li>はじめに（ログインと通知）</li>
+      <li>選手を招待・停止・削除する</li>
+      <li>全員カレンダーを見る</li>
+      <li>メニューを作って選手に知らせる</li>
+      <li>テンプレートを使う・他の選手や日付にも入れる</li>
+      <li>変更と実施結果を確認する</li>
+      <li>参考メニュー帳とテンプレート</li>
+      <li>コーチに届く通知</li>
+      <li>困ったときは</li>
+    </ol>
+  </div>
+</div>
+
+<section class="chapter">
+  <h2>1. はじめに（ログインと通知）</h2>
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>ログイン</h3>
+      <ul>
+        <li>iPhone の Safari で URL を開き、共有ボタン → <span class="key">ホーム画面に追加</span>。以後はホーム画面の「D-work」から開く</li>
+        <li>メールアドレスを入れて <span class="key">ログイン用のコードを送る</span> → メールの6桁のコードを入れる（パスワードはありません）</li>
+        <li>ログインするとコーチ用の画面になります。下のメニューは <b>カレンダー／テンプレート／参考メニュー／選手管理</b></li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/c13-settings.png" alt="設定"></div>
+  </div>
+  <div class="step wide">
+    <div>
+      <h3><span class="num">2</span>通知を有効にする</h3>
+      <ul>
+        <li>右上の <span class="key">設定</span> → <span class="key">通知を有効にする</span> → 確認で <span class="key">許可</span></li>
+        <li><span class="key">テスト通知を送る</span> で届くか確かめられます</li>
+        <li>機種変更したら、新しい端末でもう一度押してください</li>
+      </ul>
+      <div class="tip">選手向けの説明は「選手向け 使い方ガイド」にまとめてあります。選手を招待するときに一緒に渡してください。</div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter">
+  <h2>2. 選手を招待・停止・削除する</h2>
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>招待する</h3>
+      <ol>
+        <li>下の <span class="key">選手管理</span> を開く</li>
+        <li>名前（アプリ内の表示名）とメールアドレスを入れて <span class="key">招待メールを送る</span></li>
+        <li>選手に「SWIM D-work ログインコード」のメールが届く。メールの手順でホーム画面に追加してログインしてもらう</li>
+      </ol>
+      <ul>
+        <li>選手は<b>5人まで</b>（停止中は数えません）</li>
+        <li>一覧の「招待中（未ログイン）」は、まだ一度もログインしていない選手です</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/c01-athletes.png" alt="選手管理"></div>
+  </div>
+  <div class="step">
+    <div>
+      <h3><span class="num">2</span>停止する・削除する</h3>
+      <ul>
+        <li><b>停止</b>：<span class="key">停止</span> を押すと、その選手はログインできなくなります。予定や記録は<b>残ります</b>。<span class="key">停止を解除</span> で元に戻せます</li>
+        <li><b>削除</b>：停止中の選手にだけ <span class="key">削除する</span> が出ます。確認のため<b>選手の名前を入力</b>すると削除できます</li>
+      </ul>
+      <div class="note">削除すると、その選手のアカウントと予定・メニュー・実施記録が<b>すべて消え、元に戻せません</b>。記録を残したいときは「停止」のままにしてください。テンプレートと参考メニュー帳は残ります。</div>
+    </div>
+    <div class="phone"><img src="img/c02-delete.png" alt="削除の確認"></div>
+  </div>
+</section>
+
+<section class="chapter">
+  <h2>3. 全員カレンダーを見る</h2>
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>見方</h3>
+      <ul>
+        <li>今日から7日間、全選手の予定が<b>選手ごとの色</b>で並びます。左右スワイプか <span class="key">前の7日</span>／<span class="key">次の7日</span> で移動</li>
+        <li>上の名前のボタンで、選手ごとに絞り込めます</li>
+        <li>上の黄色い帯に「この7日間：メニュー未設定 ○件／変更あり ○件」が出ます</li>
+        <li>予定は<b>選手が入れます</b>。コーチは予定を追加・変更できません</li>
+        <li>ドライランドの枠を押すと、メニューの画面が開きます</li>
+      </ul>
+      <table>
+        <tr><th>印</th><th>意味</th></tr>
+        <tr><td><span class="mark m-unset">メニュー未設定</span></td><td>メニューを入れる必要がある</td></tr>
+        <tr><td><span class="mark m-set">メニューあり</span></td><td>メニューを入れた</td></tr>
+        <tr><td><span class="mark m-unnotified">未通知</span></td><td>保存したが、選手にまだ知らせていない</td></tr>
+        <tr><td><span class="mark m-doing">実施中</span> <span class="mark m-done">実施済み</span></td><td>選手が記録を始めた／完了した</td></tr>
+        <tr><td><span class="mark m-changed">変更あり</span></td><td>メニューを入れた後に選手が日時などを変えた</td></tr>
+        <tr><td><span class="mark m-cancel">中止</span></td><td>選手が中止にした（理由も表示）</td></tr>
+      </table>
+    </div>
+    <div class="phone"><img src="img/c03-calendar.png" alt="全員カレンダー"></div>
+  </div>
+</section>
+
+<section class="chapter">
+  <h2>4. メニューを作って選手に知らせる</h2>
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>ブロックを組み立てる</h3>
+      <ul>
+        <li>メニューは「ブロック」を上から順に並べたものです</li>
+        <li><span class="key">＋ 単独ブロック</span>：1つの種目を、セット数・セット間休憩で行う</li>
+        <li><span class="key">＋ サーキット</span>：複数の種目を、周回数・種目間休憩・周回間休憩で行う</li>
+        <li>種目ごとに <b>種目名・回数または秒数・負荷・メモ</b>。単位は <span class="key">回</span>／<span class="key">秒</span> を切り替え（5分は「300秒」）</li>
+        <li>種目名は、過去に使った名前が候補に出ます</li>
+        <li><span class="key">↑</span> <span class="key">↓</span> で並べ替え、<span class="key">削除</span> で消す</li>
+      </ul>
+      <div class="tip">休憩はすべて秒で入れます（1分30秒 → 90）。表示は「1分30秒」のようになります。</div>
+    </div>
+    <div class="phone"><img src="img/c04-editor.png" alt="メニュー編集"></div>
+  </div>
+  <div class="step wide">
+    <div>
+      <h3><span class="num">2</span>保存する・選手に知らせる</h3>
+      <ul>
+        <li><span class="key">保存</span>：保存だけ。選手のアプリにはすぐ表示されますが、<b>通知は送りません</b>。カレンダーに <span class="mark m-unnotified">未通知</span> が付きます</li>
+        <li><span class="key">保存して選手に通知</span>：保存して、選手のスマホに「11/10（火）のドライランドにメニューが入りました」を送ります</li>
+        <li>保存済みで未通知のときは <span class="key">保存済み・選手に通知する</span> ボタンが出ます</li>
+        <li>通知の設定をしていない選手には端末に届きません。その場合は画面に「通知の設定がまだのため、端末には届いていません」と出ます（アプリを開けばメニューは見えます）</li>
+      </ul>
+      <div class="note">選手が記録を始めると、そのメニューは<b>変更・削除できなくなります</b>（画面は「実施結果」に切り替わります）。直したいときは、記録を始める前に直してください。</div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter">
+  <h2>5. テンプレートを使う・他の選手や日付にも入れる</h2>
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>テンプレートから入れる</h3>
+      <ul>
+        <li>メニュー画面の <span class="key">テンプレートから入れる</span> → テンプレートを選ぶと中身が見られます</li>
+        <li>メニューが空なら <span class="key">これを入れる</span>、入っていれば <span class="key">置き換える</span> か <span class="key">末尾に追加</span></li>
+        <li>入れたあと内容を調整して、保存してください</li>
+        <li>今のメニューを <span class="key">このメニューをテンプレートに保存</span> でテンプレートにもできます</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/c06-template-picker.png" alt="テンプレートから入れる"></div>
+  </div>
+  <div class="step">
+    <div>
+      <h3><span class="num">2</span>他の選手・日付にも入れる</h3>
+      <ul>
+        <li><span class="key">このメニューを他の選手・日付にも入れる</span> → 今日から4週間のドライランド枠が並ぶので、入れたい枠にチェック</li>
+        <li>メニューが入っている枠は「設定済み・上書き」と出ます。チェックしたときだけ上書きします</li>
+        <li>選手が記録を始めた枠は出てきません</li>
+        <li><span class="key">選手に通知する</span>（最初からオン）なら、編集中の枠と合わせて<b>選手ごとに1通</b>にまとめて知らせます（「11/10（火）ほか2日のメニューが入りました」）</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/c07-paste.png" alt="一括貼り付け"></div>
+  </div>
+</section>
+
+<section class="chapter">
+  <h2>6. 変更と実施結果を確認する</h2>
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>変更あり</h3>
+      <ul>
+        <li>メニューを入れた後に選手が日時・場所・時間を変えると <span class="mark m-changed">変更あり</span> が付き、「11/8 07:00 → 11/8 07:30」のように変わった内容が出ます</li>
+        <li>確認したら <span class="key">確認済みにする</span> を押すと消えます</li>
+      </ul>
+      <h3 style="margin-top:4mm"><span class="num">2</span>実施結果</h3>
+      <ul>
+        <li>選手が記録を始めた枠を開くと「実施結果」が出ます</li>
+        <li>上に「チェック 4/5」「計画と違う 3」「未チェック 1」「追加 1」のまとめ</li>
+        <li>計画どおりの種目は ✓ だけ。数字を変えた種目は<b>「計画 15回 → 実績 12回」</b>、周回数・セット数も同じように表示</li>
+        <li><span style="color:#b91c1c">赤</span>は未チェック、<span style="color:#0369a1">青</span>は選手が自分で追加した種目</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/c09-outcome.png" alt="実施結果"></div>
+  </div>
+</section>
+
+<section class="chapter">
+  <h2>7. 参考メニュー帳とテンプレート</h2>
+  <p class="intro">どちらもコーチだけが見られます。選手には表示されません。</p>
+  <div class="step">
+    <div>
+      <h3><span class="num">1</span>参考メニュー帳</h3>
+      <ul>
+        <li>Web で見つけたメニューを <span class="key">＋ メモする</span> で残す：タイトル・出典URL・メモ（要点、選手に合わせて変えたい点）・タグ</li>
+        <li>タグは「、」や空白で区切るか、#体幹 などのボタンで選ぶ</li>
+        <li>一覧の上のタグを押すと絞り込めます</li>
+      </ul>
+      <div class="note">元のページの文章や画像は貼り付けず、URL と自分の言葉の要点で残してください。</div>
+    </div>
+    <div class="phone"><img src="img/c10-references.png" alt="参考メニュー帳"></div>
+  </div>
+  <div class="step">
+    <div>
+      <h3><span class="num">2</span>メモからテンプレートを作る</h3>
+      <ul>
+        <li>メモを開いて <span class="key">このメモからテンプレートを作る</span></li>
+        <li>メモの要点を見ながら、メニューと同じようにブロックを組んで <span class="key">テンプレートを保存</span></li>
+        <li>下の <span class="key">テンプレート</span> から、一覧・編集・削除ができます（削除しても、すでに入れたメニューは変わりません）</li>
+      </ul>
+    </div>
+    <div class="phone"><img src="img/c12-template-new.png" alt="テンプレート作成"></div>
+  </div>
+</section>
+
+<section class="chapter">
+  <h2>8. コーチに届く通知</h2>
+  <p class="intro">対象はドライランドの枠だけです（水中練習・試合は通知しません）。</p>
+  <table>
+    <tr><th>届くとき</th><th>通知の例</th></tr>
+    <tr><td><b>毎晩22:00</b>：翌日のドライランドにメニュー未設定の枠がある（なければ届きません）</td><td>明日メニュー未設定：Aさん 16:00 学校 40分／Bさん 18:30 自宅 30分</td></tr>
+    <tr><td>前日22時以降に翌日の枠、または当日の枠が<b>追加・移動</b>された（メニュー未設定）</td><td>Aさん 明日 07:00 自宅 30分 が追加されました（メニュー未設定）</td></tr>
+    <tr><td>メニューを入れた枠を選手が<b>変更</b>した</td><td>Aさん 11/10（火） のドライランドが変更されました（11/10 16:00 → 11/12 16:00）</td></tr>
+    <tr><td>メニューを入れた枠を選手が<b>中止</b>した</td><td>Aさん 11/10（火） のドライランドが中止されました（理由：発熱）</td></tr>
+  </table>
+  <ul style="margin-top:3mm">
+    <li>選手が一度に何件も入れたときは、1通にまとまります</li>
+    <li>前日22時より前に入った翌日以降の枠は、すぐには通知されず、22時のまとめ通知で知らせます</li>
+  </ul>
+</section>
+
+<section class="chapter">
+  <h2>9. 困ったときは</h2>
+  <dl class="faq">
+    <dt>メニューを直したいのに、編集画面が出ない</dt>
+    <dd>選手が記録を始めた枠は変更できません（「実施結果」が表示されます）。中止された枠も変更できません。</dd>
+    <dt>選手の予定をコーチが入れたい</dt>
+    <dd>予定は選手が入れる仕組みです。選手に入れてもらってください。</dd>
+    <dt>招待できない（「5人までです」と出る）</dt>
+    <dd>選手は5人までです。使わなくなった選手を停止（または削除）すると、招待できるようになります。</dd>
+    <dt>選手がログインできない</dt>
+    <dd>選手管理で「停止中」になっていないか確認してください。コードの有効期限は1時間なので、切れていたら選手に「コードを再送する」を押してもらいます。</dd>
+    <dt>通知が届かない</dt>
+    <dd>ホーム画面の「D-work」から開いているか、iPhone の「設定」→「通知」→「D-work」で許可されているかを確認し、アプリの「設定」→「テスト通知を送る」で試してください。</dd>
+    <dt>画面が古いまま</dt>
+    <dd>アプリを完全に閉じて開き直してください（2回）。</dd>
+    <dt>それ以外（鍵の作り直し、Supabase の一時停止など）</dt>
+    <dd>リポジトリの <b>docs/operations.md（運用手順書）</b> を見てください。</dd>
+  </dl>
+</section>
+
+</body>
+</html>
