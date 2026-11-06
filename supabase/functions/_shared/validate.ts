@@ -24,3 +24,12 @@ export function parseStatusChange(
   if (typeof body.active !== 'boolean') return { ok: false, error: 'active が不正です' }
   return { ok: true, athleteId: body.athlete_id, active: body.active }
 }
+
+export function parseAthleteId(
+  body: Record<string, unknown>,
+): { ok: true; athleteId: string } | { ok: false; error: string } {
+  if (typeof body.athlete_id !== 'string' || !UUID.test(body.athlete_id)) {
+    return { ok: false, error: 'athlete_id が不正です' }
+  }
+  return { ok: true, athleteId: body.athlete_id }
+}

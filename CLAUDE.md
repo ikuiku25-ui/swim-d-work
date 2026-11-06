@@ -27,7 +27,7 @@ src/
   sw.ts             Service Worker（プッシュ受信）
 supabase/
   migrations/       スキーマ・RLS・トリガー（変更は必ずマイグレーションで行う）
-  functions/        Edge Functions（invite-athlete, set-athlete-status, flush-notifications, notify-menu, push-self-test, nightly-check）
+  functions/        Edge Functions（invite-athlete, set-athlete-status, delete-athlete, flush-notifications, notify-menu, push-self-test, nightly-check）
   tests/            pgTAP テスト
   seed.sql          ローカル開発用のコーチ1人・選手2人
 workers/

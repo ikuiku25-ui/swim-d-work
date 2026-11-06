@@ -446,3 +446,6 @@ verify_jwt = false
 
 [functions.set-athlete-status]
 verify_jwt = false
+
+[functions.delete-athlete]
+verify_jwt = false

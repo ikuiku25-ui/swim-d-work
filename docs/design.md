@@ -193,6 +193,7 @@ RLS だけでは表せない規則は、トリガーで強制する。
   - `auth.admin.createUser({ email_confirm: true })` でユーザーを作り、そのアドレスにログインコードのメールを送る
   - Supabase の招待メール（`inviteUserByEmail`）は使わない。リンクを押すまでメール未確認のままになり、コードでログインできないため
 - 停止・再開は Edge Function `set-athlete-status`。`profiles.is_active` とアカウント凍結（ban）の両方を切り替える
+- 削除は Edge Function `delete-athlete`。**停止中の選手だけ**を削除できる（停止 → 削除の2段階）。画面では選手の名前を入力して確認する。Auth のユーザーを削除すると、外部キーの連鎖でプロフィール・予定・メニュー・実施記録・中止履歴・購読・通知がまとめて消える（取り消せない）。テンプレート・参考メニュー帳・種目名の候補は残る
 - コーチの選手一覧は関数 `list_athletes()`（コーチのみ。最終ログイン日時から「招待中／利用中」を表示する）
 - 最初のコーチアカウントは、Supabase 管理画面の「Create new user（Auto Confirm User）」で作る（`docs/setup.md`）
 

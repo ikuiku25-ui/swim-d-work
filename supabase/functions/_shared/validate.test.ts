@@ -1,5 +1,5 @@
 import { assertEquals } from 'jsr:@std/assert@1'
-import { parseInvite, parseStatusChange } from './validate.ts'
+import { parseAthleteId, parseInvite, parseStatusChange } from './validate.ts'
 
 Deno.test('parseInvite：正しい入力', () => {
   assertEquals(parseInvite({ display_name: ' 山田 ', email: ' Taro@Example.com ' }), {
@@ -29,4 +29,11 @@ Deno.test('parseStatusChange', () => {
   })
   assertEquals(parseStatusChange({ athlete_id: 'x', active: false }).ok, false)
   assertEquals(parseStatusChange({ athlete_id: id, active: 'no' }).ok, false)
+})
+
+Deno.test('parseAthleteId', () => {
+  const id = '00000000-0000-0000-0000-0000000000a1'
+  assertEquals(parseAthleteId({ athlete_id: id }), { ok: true, athleteId: id })
+  assertEquals(parseAthleteId({ athlete_id: 'x' }).ok, false)
+  assertEquals(parseAthleteId({}).ok, false)
 })
